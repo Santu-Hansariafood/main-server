@@ -9,7 +9,8 @@ const FarmerRegister = require("./models/farmerRegisterModel");
 const AdminRegister = require("./models/adminModel");
 const Buyer = require("./models/buyerModel");
 const BuyerCompany = require("./models/buyerCompanyModel");
-const SoyaQualityParameters = require("./models/soyaModel")
+const SoyaQualityParameters = require("./models/soyaModel");
+const Deal = require("./models/dealsModel")
 
 const app = express();
 
@@ -700,6 +701,75 @@ app.delete('/soya-quality-parameters/:id', async (req, res) => {
   } catch (error) {
     console.error('Error deleting Soya quality parameters:', error);
     res.status(500).json({ error: 'Failed to delete Soya quality parameters' });
+  }
+});
+
+app.post("/deal", async (req, res) => {
+  try {
+    const deal = await Deal.create(req.body);
+    res.status(201).json(deal);
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+});
+
+app.get("/deal", async (req, res) => {
+  try {
+    const deal = await Deal.find();
+
+    if (!deal || deal.length === 0) {
+      return res.status(404).json({ message: "No farmers found" });
+    }
+
+    res.status(200).json({ deal });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.get('/deal/:id', async (req, res) => {
+  try {
+    const deal = await Deal.findById(req.params.id);
+    if (!deal) {
+      return res.status(404).json({ message: 'Deal not found' });
+    }
+
+    const dealDetails = {
+      _id: deal._id,
+      selectedBuyer: deal.selectedBuyer,
+      selectedConsignee: deal.selectedConsignee,
+      selectedProduct: deal.selectedProduct,
+      buyerRate: deal.buyerRate,
+      buyerQuantity: deal.buyerQuantity,
+      supplierRate: deal.supplierRate,
+      supplierQuantity: deal.supplierQuantity,
+    };
+
+    res.json({ deal: dealDetails });
+  } catch (error) {
+    console.error('Error fetching deal by ID:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+
+app.delete('/deal/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedDeal = await Deal.findByIdAndDelete(id);
+
+    if (!deletedDeal) {
+      return res.status(404).json({ message: 'Deal not found' });
+    }
+
+    res.status(200).json({ message: 'Deal deleted successfully', deletedDeal });
+  } catch (error) {
+    console.error('Error deleting deal:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
