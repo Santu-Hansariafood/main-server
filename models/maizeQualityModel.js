@@ -1,59 +1,12 @@
-// const mongoose = require("mongoose");
-
-// const soyaQualityParametersSchema = new mongoose.Schema({
-//   protein: {
-//     type: String,
-//     required: true,
-//   },
-//   moisture: {
-//     type: String,
-//     required: true,
-//   },
-//   ss: {
-//     type: String,
-//     required: true,
-//   },
-//   fibre: {
-//     type: String,
-//     required: true,
-//   },
-//   oil: {
-//     type: String,
-//     required: true,
-//   },
-//   mandi: {
-//     type: String,
-//     enum: ["applicable", "not applicable"],
-//     required: true,
-//   },
-// });
-
-// const SoyaQualityParameters = mongoose.model(
-//   "SoyaQualityParameters",
-//   soyaQualityParametersSchema
-// );
-
-// module.exports = SoyaQualityParameters;
-
 const mongoose = require("mongoose");
 
-const soyaQualityParametersSchema = new mongoose.Schema(
+const maizeQualityParametersSchema = new mongoose.Schema(
   {
     companyName: {
       type: String,
       required: true,
     },
     parameters: {
-      protein: {
-        min: {
-          type: Number,
-          required: true,
-        },
-        max: {
-          type: Number,
-          required: true,
-        },
-      },
       moisture: {
         min: {
           type: Number,
@@ -64,7 +17,7 @@ const soyaQualityParametersSchema = new mongoose.Schema(
           required: true,
         },
       },
-      ss: {
+      fungus: {
         min: {
           type: Number,
           required: true,
@@ -74,7 +27,7 @@ const soyaQualityParametersSchema = new mongoose.Schema(
           required: true,
         },
       },
-      fibre: {
+      waterDamage: {
         min: {
           type: Number,
           required: true,
@@ -84,7 +37,47 @@ const soyaQualityParametersSchema = new mongoose.Schema(
           required: true,
         },
       },
-      oil: {
+      fm: {
+        min: {
+          type: Number,
+          required: true,
+        },
+        max: {
+          type: Number,
+          required: true,
+        },
+      },
+      damage: {
+        min: {
+          type: Number,
+          required: true,
+        },
+        max: {
+          type: Number,
+          required: true,
+        },
+      },
+      broken: {
+        min: {
+          type: Number,
+          required: true,
+        },
+        max: {
+          type: Number,
+          required: true,
+        },
+      },
+      aflatoxin: {
+        min: {
+          type: Number,
+          required: true,
+        },
+        max: {
+          type: Number,
+          required: true,
+        },
+      },
+      starch: {
         min: {
           type: Number,
           required: true,
@@ -106,9 +99,9 @@ const soyaQualityParametersSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const SoyaQualityParameters = mongoose.model(
-  "SoyaQualityParameters",
-  soyaQualityParametersSchema
+const MaizeQualityParameters = mongoose.model(
+  "MaizeQualityParameters",
+  maizeQualityParametersSchema
 );
 
-module.exports = SoyaQualityParameters;
+module.exports = MaizeQualityParameters;

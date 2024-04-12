@@ -79,12 +79,14 @@ const buyerSchema = new mongoose.Schema({
   companyName: {
     type: String,
     required: true,
+    unique:true
   },
   consignees: {
     type: [String],
     default: [],
   },
-});
+},
+{timestamps:true});
 
 const Buyer = mongoose.model("Buyer", buyerSchema);
 

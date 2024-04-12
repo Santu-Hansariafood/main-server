@@ -1,23 +1,35 @@
 // const mongoose = require("mongoose");
 
-// const soyaQualityParametersSchema = new mongoose.Schema({
-//   protein: {
-//     type: String,
-//     required: true,
-//   },
+// const brokenRiceQualityParametersSchema = new mongoose.Schema({
 //   moisture: {
 //     type: String,
 //     required: true,
 //   },
-//   ss: {
+//   fungus: {
 //     type: String,
 //     required: true,
 //   },
-//   fibre: {
+//   waterDamage: {
 //     type: String,
 //     required: true,
 //   },
-//   oil: {
+//   fm: {
+//     type: String,
+//     required: true,
+//   },
+//   damage: {
+//     type: String,
+//     required: true,
+//   },
+//   broken: {
+//     type: String,
+//     required: true,
+//   },
+//   aflatoxin: {
+//     type: String,
+//     required: true,
+//   },
+//   starch: {
 //     type: String,
 //     required: true,
 //   },
@@ -28,32 +40,22 @@
 //   },
 // });
 
-// const SoyaQualityParameters = mongoose.model(
-//   "SoyaQualityParameters",
-//   soyaQualityParametersSchema
+// const BrokenRiceQualityParameters = mongoose.model(
+//   "BrokenRiceQualityParameters",
+//   brokenRiceQualityParametersSchema
 // );
 
-// module.exports = SoyaQualityParameters;
+// module.exports = BrokenRiceQualityParameters;
 
 const mongoose = require("mongoose");
 
-const soyaQualityParametersSchema = new mongoose.Schema(
+const brokenRiceQualityParameters = new mongoose.Schema(
   {
     companyName: {
       type: String,
       required: true,
     },
     parameters: {
-      protein: {
-        min: {
-          type: Number,
-          required: true,
-        },
-        max: {
-          type: Number,
-          required: true,
-        },
-      },
       moisture: {
         min: {
           type: Number,
@@ -64,7 +66,7 @@ const soyaQualityParametersSchema = new mongoose.Schema(
           required: true,
         },
       },
-      ss: {
+      fungus: {
         min: {
           type: Number,
           required: true,
@@ -74,7 +76,7 @@ const soyaQualityParametersSchema = new mongoose.Schema(
           required: true,
         },
       },
-      fibre: {
+      waterDamage: {
         min: {
           type: Number,
           required: true,
@@ -84,7 +86,47 @@ const soyaQualityParametersSchema = new mongoose.Schema(
           required: true,
         },
       },
-      oil: {
+      fm: {
+        min: {
+          type: Number,
+          required: true,
+        },
+        max: {
+          type: Number,
+          required: true,
+        },
+      },
+      damage: {
+        min: {
+          type: Number,
+          required: true,
+        },
+        max: {
+          type: Number,
+          required: true,
+        },
+      },
+      broken: {
+        min: {
+          type: Number,
+          required: true,
+        },
+        max: {
+          type: Number,
+          required: true,
+        },
+      },
+      aflatoxin: {
+        min: {
+          type: Number,
+          required: true,
+        },
+        max: {
+          type: Number,
+          required: true,
+        },
+      },
+      starch: {
         min: {
           type: Number,
           required: true,
@@ -106,9 +148,9 @@ const soyaQualityParametersSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const SoyaQualityParameters = mongoose.model(
-  "SoyaQualityParameters",
-  soyaQualityParametersSchema
+const BrokenRiceQualityParameters = mongoose.model(
+  "BrokenRiceQualityParameters",
+  brokenRiceQualityParameters
 );
 
-module.exports = SoyaQualityParameters;
+module.exports = BrokenRiceQualityParameters;
