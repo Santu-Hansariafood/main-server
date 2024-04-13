@@ -5,15 +5,18 @@ const dealSchema = new mongoose.Schema(
     selectedBuyer: String,
     selectedConsignee: String,
     selectedProduct: String,
+    companyName: String,
     buyerRate: Number,
     buyerQuantity: Number,
-    // supplierRate: Number,
-    // supplierQuantity: Number,
     paymentTerms: String,
     delivery: String,
     selectedDate: Date,
     startTime: String,
     endTime: String,
+    qualityParameters: {
+      type: mongoose.Schema.Types.Mixed,
+      default: {}
+    }
   },
   { timestamps: true }
 );

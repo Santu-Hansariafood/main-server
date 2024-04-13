@@ -414,39 +414,6 @@ app.get("/buyer/:id", async (req, res) => {
   }
 });
 
-// Create a new buyer
-// app.post("/buyer", async (req, res) => {
-//   try {
-//     const { name, mobile, email, password, selectedProducts, companyName, consignees } = req.body;
-
-//     // Check if all required fields are provided
-//     if (!name || !mobile || !email || !password || !companyName) {
-//       return res.status(400).json({ message: "Please provide all required fields" });
-//     }
-
-//     // Create a new Buyer instance
-//     const newBuyer = new Buyer({
-//       name,
-//       mobile,
-//       email,
-//       password,
-//       selectedProducts:[],
-//       companyName,
-//       consignees:[],
-//     });
-
-//     // Save the new buyer to the database
-//     await newBuyer.save();
-
-//     // Respond with the created buyer object
-//     res.status(201).json(newBuyer);
-//   } catch (error) {
-//     console.error("Error creating buyer:", error);
-
-//     // Handle server-side errors
-//     res.status(500).json({ message: "Internal Server Error" });
-//   }
-// });
 
 app.post("/buyer", async (req, res) => {
   try {
@@ -632,83 +599,25 @@ app.delete("/registerBuyerCompany/:id", async (req, res) => {
   }
 });
 
-// quality parameter
-
-// // soya quality parameters
-
-// app.post('/soya-quality-parameters', async (req, res) => {
-//   try {
-//     Object.keys(req.body).forEach(param => {
-//       req.body[param] = String(req.body[param]);
-//     });
-//     const newSoyaQualityParameters = new SoyaQualityParameters(req.body);
-//     await newSoyaQualityParameters.save();
-//     res.status(201).json({ success: true, message: 'Soya quality parameters saved successfully' });
-//   } catch (error) {
-//   }
-// });
-
-// app.get('/soya-quality-parameters', async (req, res) => {
-//   try {
-//     const parameters = await SoyaQualityParameters.find();
-//     res.json(parameters);
-//   } catch (error) {
-//     console.error('Error fetching Soya quality parameters:', error);
-//     res.status(500).json({ error: 'Failed to fetch Soya quality parameters' });
-//   }
-// });
-
-// app.get('/soya-quality-parameters/:id', async (req, res) => {
-//   try {
-//     const parameter = await SoyaQualityParameters.findById(req.params.id);
-//     if (!parameter) {
-//       return res.status(404).json({ error: 'Soya quality parameters not found' });
-//     }
-//     res.json(parameter);
-//   } catch (error) {
-//     console.error('Error fetching Soya quality parameters:', error);
-//     res.status(500).json({ error: 'Failed to fetch Soya quality parameters' });
-//   }
-// });
-
-// app.put('/soya-quality-parameters/:id', async (req, res) => {
-//   try {
-//     const updatedParameter = await SoyaQualityParameters.findByIdAndUpdate(
-//       req.params.id,
-//       req.body,
-//       { new: true }
-//     );
-//     res.json(updatedParameter);
-//   } catch (error) {
-//     console.error('Error updating Soya quality parameters:', error);
-//     res.status(500).json({ error: 'Failed to update Soya quality parameters' });
-//   }
-// });
-
-// app.delete('/soya-quality-parameters/:id', async (req, res) => {
-//   try {
-//     const deletedParameter = await SoyaQualityParameters.findByIdAndDelete(req.params.id);
-//     if (!deletedParameter) {
-//       return res.status(404).json({ error: 'Soya quality parameters not found' });
-//     }
-//     res.json({ message: 'Soya quality parameters deleted successfully' });
-//   } catch (error) {
-//     console.error('Error deleting Soya quality parameters:', error);
-//     res.status(500).json({ error: 'Failed to delete Soya quality parameters' });
-//   }
-// });
 
 app.post("/deal", async (req, res) => {
   try {
-    const deal = await Deal.create(req.body);
+    const { selectedProduct, ...dealData } = req.body;
+    const deal = await Deal.create({
+      selectedProduct, // Include selectedProduct field
+      ...dealData,
+      qualityParameters: selectedProduct === "Soya" ? { protein: req.body.qualityParameters.protein } : 
+                         selectedProduct === "Maize" || selectedProduct === "Broken Rice" ? { moisture: req.body.qualityParameters.moisture, fungus: req.body.qualityParameters.fungus } : {}
+    });
+
     res.status(201).json(deal);
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json({
-      message: error.message,
-    });
+    console.error("Error creating deal:", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 });
+
+
 
 app.get("/deal", async (req, res) => {
   try {
@@ -732,18 +641,7 @@ app.get("/deal/:id", async (req, res) => {
       return res.status(404).json({ message: "Deal not found" });
     }
 
-    const dealDetails = {
-      _id: deal._id,
-      selectedBuyer: deal.selectedBuyer,
-      selectedConsignee: deal.selectedConsignee,
-      selectedProduct: deal.selectedProduct,
-      buyerRate: deal.buyerRate,
-      // buyerQuantity: deal.buyerQuantity,
-      // supplierRate: deal.supplierRate,
-      supplierQuantity: deal.supplierQuantity,
-    };
-
-    res.json({ deal: dealDetails });
+    res.json({ deal });
   } catch (error) {
     console.error("Error fetching deal by ID:", error);
     res.status(500).json({ message: "Internal Server Error" });
