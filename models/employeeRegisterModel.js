@@ -24,7 +24,7 @@ const employeeRegisterSchema = mongoose.Schema(
     role: {
       type: String,
       required: true,
-      unique: true,
+      // unique: true,
     },
     password: {
       type: String,

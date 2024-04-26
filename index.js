@@ -13,6 +13,7 @@ const SoyaQualityParameters = require("./models/soyaModel");
 const Deal = require("./models/dealsModel");
 const BrokenRiceQualityParameters = require("./models/brokenRiceQualityModel");
 const MaizeQualityParameters = require("./models/maizeQualityModel");
+const ParticipateOnBid = require("./models/participateOnBidModel")
 const app = express();
 
 app.use(express.json());
@@ -884,6 +885,66 @@ app.delete("/soyaQualityParameters/:id", async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
+app.post('/participateOnBid', async (req, res) => {
+  try {
+      const participateOnBid = new ParticipateOnBid(req.body);
+      await participateOnBid.save();
+      res.status(201).send(participateOnBid);
+  } catch (error) {
+      res.status(400).send(error);
+  }
+});
+
+// GET operation to retrieve all participateOnBids
+app.get('/participateOnBid', async (req, res) => {
+  try {
+      const participateOnBids = await ParticipateOnBid.find();
+      res.send(participateOnBids);
+  } catch (error) {
+      res.status(500).send(error);
+  }
+});
+
+// GET operation to retrieve a participateOnBid by ID
+app.get('/participateOnBid/:id', async (req, res) => {
+  try {
+      const participateOnBid = await ParticipateOnBid.findById(req.params.id);
+      if (!participateOnBid) {
+          return res.status(404).send({ error: 'ParticipateOnBid not found' });
+      }
+      res.send(participateOnBid);
+  } catch (error) {
+      res.status(500).send(error);
+  }
+});
+
+// PUT operation to update a participateOnBid by ID
+app.put('/participateOnBid/:id', async (req, res) => {
+  try {
+      const participateOnBid = await ParticipateOnBid.findByIdAndUpdate(req.params.id, req.body, { new: true });
+      if (!participateOnBid) {
+          return res.status(404).send({ error: 'ParticipateOnBid not found' });
+      }
+      res.send(participateOnBid);
+  } catch (error) {
+      res.status(400).send(error);
+  }
+});
+
+// DELETE operation to delete a participateOnBid by ID
+app.delete('/participateOnBid/:id', async (req, res) => {
+  try {
+      const participateOnBid = await ParticipateOnBid.findByIdAndDelete(req.params.id);
+      if (!participateOnBid) {
+          return res.status(404).send({ error: 'ParticipateOnBid not found' });
+      }
+      res.send(participateOnBid);
+  } catch (error) {
+      res.status(500).send(error);
+  }
+});
+
 
 mongoose.set("strictQuery", false);
 mongoose
