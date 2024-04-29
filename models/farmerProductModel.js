@@ -4,7 +4,7 @@ const farmerProductSchema = new mongoose.Schema({
   farmerId: {
     type: String,
     required: true,
-    unique: true,
+    // unique: true,
   },
   farmerName: {
     type: String,
