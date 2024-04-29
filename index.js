@@ -961,24 +961,39 @@ app.get('/farmerProducts/:id', getFarmerProduct, (req, res) => {
 });
 
 // POST a new farmer product
+// app.post('/farmerProducts', async (req, res) => {
+//   const farmerProduct = new FarmerProduct({
+//     farmerId: req.body.farmerId,
+//     farmerName: req.body.farmerName,
+//     selectedProducts: req.body.selectedProducts,
+//     allProductsSelected: req.body.allProductsSelected
+//   });
+
+//   try {
+//     toggleProductsList(farmerProduct);
+
+//     const newFarmerProduct = await farmerProduct.save();
+//     res.status(201).json(newFarmerProduct);
+//   } catch (err) {
+//     res.status(400).json({ message: err.message });
+//   }
+// });
 app.post('/farmerProducts', async (req, res) => {
   const farmerProduct = new FarmerProduct({
     farmerId: req.body.farmerId,
     farmerName: req.body.farmerName,
     selectedProducts: req.body.selectedProducts,
-    allProductsSelected: req.body.allProductsSelected
+    allProductsSelected: req.body.selectedProducts.length === 5
   });
 
   try {
-    toggleProductsList(farmerProduct);
-
     const newFarmerProduct = await farmerProduct.save();
+    toggleProductsList(newFarmerProduct); // Call toggleProductsList after saving
     res.status(201).json(newFarmerProduct);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
 });
-
 // PUT update a farmer product
 app.put('/farmerProducts/:id', getFarmerProduct, async (req, res) => {
   if (req.body.farmerId != null) {
@@ -1043,7 +1058,7 @@ const toggleProductsList = (farmerProduct) => {
   } else {
     // If no product is selected, select all products
     farmerProduct.allProductsSelected = true;
-    farmerProduct.selectedProducts = ["Product 1", "Product 2", "Product 3", "Product 4", "Product 5"];
+    farmerProduct.selectedProducts = ["Maize", "Soya", "Broken Rice", "Wheat", "Paddy"];
   }
 };
 
