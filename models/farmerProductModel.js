@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 const farmerProductSchema = new mongoose.Schema({
   farmerId: {
     type: String,
-    required: true
+    required: true,
+    unique: true,
   },
   farmerName: {
     type: String,
