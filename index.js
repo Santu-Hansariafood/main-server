@@ -962,16 +962,20 @@ app.get('/farmerProducts/:id', getFarmerProduct, (req, res) => {
 
 // POST a new farmer product
 app.post('/farmerProducts', async (req, res) => {
+  const farmerProduct = new FarmerProduct({
+    farmerId: req.body.farmerId,
+    farmerName: req.body.farmerName,
+    selectedProducts: req.body.selectedProducts,
+    allProductsSelected: req.body.allProductsSelected
+  });
+
   try {
-    const { farmerId, farmerName, selectedProducts } = req.body;
+    toggleProductsList(farmerProduct);
 
-    // Call createOrUpdateFarmerProduct function with request body data
-    const result = await createOrUpdateFarmerProduct(farmerId, farmerName, selectedProducts);
-
-    res.status(201).json(result); // Respond with the result (updated or newly created document)
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Internal server error' });
+    const newFarmerProduct = await farmerProduct.save();
+    res.status(201).json(newFarmerProduct);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
   }
 });
 
