@@ -43,9 +43,11 @@ employeeRegisterSchema.post("save", function (error, doc, next) {
   if (error.name === "MongoError" && error.code === 11000) {
     next(new Error("Duplicate key error"));
   } else {
+    console.error(error.message);
     next(error);
   }
 });
+
 
 const EmployeeRegister = mongoose.model(
   "EmployeeRegister",

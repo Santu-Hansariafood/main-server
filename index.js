@@ -13,7 +13,8 @@ const SoyaQualityParameters = require("./models/soyaModel");
 const Deal = require("./models/dealsModel");
 const BrokenRiceQualityParameters = require("./models/brokenRiceQualityModel");
 const MaizeQualityParameters = require("./models/maizeQualityModel");
-const ParticipateOnBid = require("./models/participateOnBidModel")
+const ParticipateOnBid = require("./models/participateOnBidModel");
+const FarmerProduct = require('./models/farmerProductModel');
 const app = express();
 
 app.use(express.json());
@@ -945,6 +946,93 @@ app.delete('/participateOnBid/:id', async (req, res) => {
   }
 });
 
+app.get('/farmerProducts', async (req, res) => {
+  try {
+    const farmerProducts = await FarmerProduct.find();
+    res.json(farmerProducts);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// GET a specific farmer product by ID
+app.get('/farmerProducts/:id', getFarmerProduct, (req, res) => {
+  res.json(res.farmerProduct);
+});
+
+// POST a new farmer product
+app.post('/farmerProducts', async (req, res) => {
+  const farmerProduct = new FarmerProduct({
+    farmerId: req.body.farmerId,
+    farmerName: req.body.farmerName,
+    selectedProducts: req.body.selectedProducts,
+    allProductsSelected: req.body.allProductsSelected
+  });
+
+  try {
+    toggleProductsList(farmerProduct);
+
+    const newFarmerProduct = await farmerProduct.save();
+    res.status(201).json(newFarmerProduct);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// PUT update a farmer product
+app.put('/farmerProducts/:id', getFarmerProduct, async (req, res) => {
+  if (req.body.farmerId != null) {
+    res.farmerProduct.farmerId = req.body.farmerId;
+  }
+  if (req.body.farmerName != null) {
+    res.farmerProduct.farmerName = req.body.farmerName;
+  }
+  if (req.body.selectedProducts != null) {
+    res.farmerProduct.selectedProducts = req.body.selectedProducts;
+    res.farmerProduct.allProductsSelected = req.body.selectedProducts.length === 5;
+  }
+  try {
+    const updatedFarmerProduct = await res.farmerProduct.save();
+    res.json(updatedFarmerProduct);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// DELETE a farmer product
+app.delete('/farmerProducts/:id', getFarmerProduct, async (req, res) => {
+  try {
+    await res.farmerProduct.remove();
+    res.json({ message: 'Deleted farmer product' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Middleware function to get a single farmer product by ID
+async function getFarmerProduct(req, res, next) {
+  try {
+    const farmerProduct = await FarmerProduct.findById(req.params.id);
+    if (farmerProduct == null) {
+      return res.status(404).json({ message: 'Cannot find farmer product' });
+    }
+    res.farmerProduct = farmerProduct;
+    next();
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+}
+
+// Function to toggle product selection
+const toggleProductsList = (farmerProduct) => {
+  if (farmerProduct.selectedProducts.length === 5) {
+    farmerProduct.allProductsSelected = false;
+    farmerProduct.selectedProducts = [];
+  } else {
+    farmerProduct.allProductsSelected = true;
+    farmerProduct.selectedProducts = ["Product 1", "Product 2", "Product 3", "Product 4", "Product 5"];
+  }
+};
 
 mongoose.set("strictQuery", false);
 mongoose
