@@ -962,16 +962,6 @@ app.get('/farmerProducts/:id', getFarmerProduct, (req, res) => {
 
 app.post('/farmerProducts', async (req, res) => {
   try {
-    // Check if a similar entry already exists
-    const existingProduct = await FarmerProduct.findOne({
-      farmerId: req.body.farmerId,
-      selectedProducts: req.body.selectedProducts
-    });
-
-    // if (existingProduct) {
-    //   return res.status(400).json({ message: 'Selected product already exists for this farmer' });
-    // }
-
     // Create a new farmer product
     const farmerProduct = new FarmerProduct({
       farmerId: req.body.farmerId,
@@ -981,12 +971,39 @@ app.post('/farmerProducts', async (req, res) => {
     });
 
     const newFarmerProduct = await farmerProduct.save();
-    toggleProductsList(newFarmerProduct); // Call toggleProductsList after saving
     res.status(201).json(newFarmerProduct);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
 });
+
+// app.post('/farmerProducts', async (req, res) => {
+//   try {
+//     // Check if a similar entry already exists
+//     const existingProduct = await FarmerProduct.findOne({
+//       farmerId: req.body.farmerId,
+//       selectedProducts: req.body.selectedProducts
+//     });
+
+//     if (existingProduct) {
+//       return res.status(400).json({ message: 'Selected product already exists for this farmer' });
+//     }
+
+//     // Create a new farmer product
+//     const farmerProduct = new FarmerProduct({
+//       farmerId: req.body.farmerId,
+//       farmerName: req.body.farmerName,
+//       selectedProducts: req.body.selectedProducts,
+//       allProductsSelected: req.body.selectedProducts.length === 5
+//     });
+
+//     const newFarmerProduct = await farmerProduct.save();
+//     toggleProductsList(newFarmerProduct); // Call toggleProductsList after saving
+//     res.status(201).json(newFarmerProduct);
+//   } catch (err) {
+//     res.status(400).json({ message: err.message });
+//   }
+// });
 
 // app.post('/farmerProducts', async (req, res) => {
 //   const farmerProduct = new FarmerProduct({
