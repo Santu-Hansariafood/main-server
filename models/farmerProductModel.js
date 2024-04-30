@@ -23,20 +23,20 @@ const farmerProductSchema = new mongoose.Schema({
 });
 
 // Middleware to ensure selected products are not listed in the database
-farmerProductSchema.pre('save', async function(next) {
-  try {
-    const existingProduct = await FarmerProduct.findOne({
-      farmerId: this.farmerId,
-      selectedProducts: { $in: this.selectedProducts }
-    });
-    if (existingProduct) {
-      throw new Error('Selected product already exists for this farmer.');
-    }
-    next();
-  } catch (error) {
-    next(error);
-  }
-});
+// farmerProductSchema.pre('save', async function(next) {
+//   try {
+//     const existingProduct = await FarmerProduct.findOne({
+//       farmerId: this.farmerId,
+//       selectedProducts: { $in: this.selectedProducts }
+//     });
+//     if (existingProduct) {
+//       throw new Error('Selected product already exists for this farmer.');
+//     }
+//     next();
+//   } catch (error) {
+//     next(error);
+//   }
+// });
 
 const FarmerProduct = mongoose.model('farmerProduct', farmerProductSchema);
 
