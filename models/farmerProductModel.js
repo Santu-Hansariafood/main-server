@@ -1,36 +1,10 @@
-// const mongoose = require('mongoose');
-
-// const farmerProductSchema = new mongoose.Schema({
-//   farmerId: {
-//     type: String,
-//     required: true,
-//     // unique: true,
-//   },
-//   farmerName: {
-//     type: String,
-//     required: true
-//   },
-//   selectedProducts: {
-//     type: [String],
-//     required: true
-//   },
-//   allProductsSelected: {
-//     type: Boolean,
-//     default: false
-//   }
-// });
-
-// const FarmerProduct = mongoose.model('farmerProduct', farmerProductSchema);
-
-// module.exports = FarmerProduct;
-
 const mongoose = require('mongoose');
 
 const farmerProductSchema = new mongoose.Schema({
   farmerId: {
     type: String,
     required: true,
-    // unique: true, // Uncomment this line if farmerId needs to be unique
+    // unique: true,
   },
   farmerName: {
     type: String,
@@ -44,6 +18,8 @@ const farmerProductSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   }
+},{
+  timestamps: true,
 });
 
 // Middleware to ensure selected products are not listed in the database
