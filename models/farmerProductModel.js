@@ -4,7 +4,6 @@
 //   farmerId: {
 //     type: String,
 //     required: true,
-//     // unique: true,
 //   },
 //   farmerName: {
 //     type: String,
@@ -42,30 +41,38 @@
 
 // module.exports = FarmerProduct;
 
-
 const mongoose = require('mongoose');
 
-// Define schema
 const farmerProductSchema = new mongoose.Schema({
   farmerId: {
     type: String,
-    required: true
+    required: true,
   },
   farmerName: {
     type: String,
     required: true
   },
   selectedProducts: {
-    type: [String], // Array of selected products
+    type: [String],
     required: true
   },
-  timestamp: {
-    type: Date,
-    default: Date.now // Automatically set timestamp on creation
+  allProductsSelected: {
+    type: Boolean,
+    default: false
+  }
+},{
+  timestamps: true
+});
+
+// Middleware to ensure selected products are not listed in the database
+farmerProductSchema.pre('save', async function(next) {
+  try {
+    next();
+  } catch (error) {
+    next(error);
   }
 });
 
-// Create model
 const FarmerProduct = mongoose.model('farmerProduct', farmerProductSchema);
 
 module.exports = FarmerProduct;

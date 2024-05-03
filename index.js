@@ -960,62 +960,23 @@ app.get('/farmerProducts/:id', getFarmerProduct, (req, res) => {
   res.json(res.farmerProduct);
 });
 
-// POST a new farmer product
-// app.post('/farmerProducts', async (req, res) => {
-//   const farmerProduct = new FarmerProduct({
-//     farmerId: req.body.farmerId,
-//     farmerName: req.body.farmerName,
-//     selectedProducts: req.body.selectedProducts,
-//     allProductsSelected: req.body.allProductsSelected
-//   });
-
-//   try {
-//     toggleProductsList(farmerProduct);
-
-//     const newFarmerProduct = await farmerProduct.save();
-//     res.status(201).json(newFarmerProduct);
-//   } catch (err) {
-//     res.status(400).json({ message: err.message });
-//   }
-// });
-
 app.post('/farmerProducts', async (req, res) => {
-  const { farmerId, farmerName, selectedProducts } = req.body;
+  const farmerProduct = new FarmerProduct({
+    farmerId: req.body.farmerId,
+    farmerName: req.body.farmerName,
+    selectedProducts: req.body.selectedProducts,
+    allProductsSelected: req.body.selectedProducts.length === 5
+  });
 
   try {
-    // Create a new product document
-    const newProduct = new FarmerProduct({
-      farmerId,
-      farmerName,
-      selectedProducts
-    });
-
-    // Save the product to the database
-    await newProduct.save();
-
-    res.status(201).json(newProduct); // Send back the saved product
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    const newFarmerProduct = await farmerProduct.save();
+    toggleProductsList(newFarmerProduct);
+    res.status(201).json(newFarmerProduct);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
   }
 });
 
-// app.post('/farmerProducts', async (req, res) => {
-//   const farmerProduct = new FarmerProduct({
-//     farmerId: req.body.farmerId,
-//     farmerName: req.body.farmerName,
-//     selectedProducts: req.body.selectedProducts,
-//     allProductsSelected: req.body.selectedProducts.length === 5
-//   });
-
-//   try {
-//     const newFarmerProduct = await farmerProduct.save();
-//     toggleProductsList(newFarmerProduct); // Call toggleProductsList after saving
-//     res.status(201).json(newFarmerProduct);
-//   } catch (err) {
-//     res.status(400).json({ message: err.message });
-//   }
-// });
 // PUT update a farmer product
 app.put('/farmerProducts/:id', getFarmerProduct, async (req, res) => {
   if (req.body.farmerId != null) {
