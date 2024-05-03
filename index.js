@@ -975,19 +975,61 @@ app.get('/farmerProducts/:id', getFarmerProduct, (req, res) => {
 });
 
 // POST create a new farmer product
-app.post('/farmerProducts', async (req, res) => {
-  const farmerProduct = new FarmerProduct({
-    farmerName: req.body.farmerName,
-    farmerId:req.body.farmerId,
-    selectedProducts: req.body.selectedProducts,
-    allProductsSelected: req.body.selectedProducts.length === 5
-  });
+// app.post('/farmerProducts', async (req, res) => {
+//   const farmerProduct = new FarmerProduct({
+//     farmerName: req.body.farmerName,
+//     farmerId:req.body.farmerId,
+//     selectedProducts: req.body.selectedProducts,
+//     allProductsSelected: req.body.selectedProducts.length === 5
+//   });
 
+//   try {
+//     const newFarmerProduct = await farmerProduct.save();
+//     res.status(201).json(newFarmerProduct);
+//   } catch (err) {
+//     res.status(400).json({ message: err.message });
+//   }
+// });
+app.post('/farmerProducts', async (req, res) => {
   try {
+    // Check if farmerId is provided
+    if (!req.body.farmerId) {
+      return res.status(400).json({ message: 'farmerId is required.' });
+    }
+
+    // Try to save the new farmer product
+    const farmerProduct = new FarmerProduct({
+      farmerName: req.body.farmerName,
+      farmerId: req.body.farmerId,
+      selectedProducts: req.body.selectedProducts,
+      allProductsSelected: req.body.selectedProducts.length === 5
+    });
+
     const newFarmerProduct = await farmerProduct.save();
-    res.status(201).json(newFarmerProduct);
+    return res.status(201).json(newFarmerProduct);
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    // Check if the error is a duplicate key error
+    if (err.code === 11000 && err.keyPattern && err.keyPattern.farmerId) {
+      try {
+        // If it's a duplicate key error for farmerId, update the existing document
+        const existingProduct = await FarmerProduct.findOne({ farmerId: req.body.farmerId });
+        if (existingProduct) {
+          existingProduct.farmerName = req.body.farmerName;
+          existingProduct.selectedProducts = req.body.selectedProducts;
+          existingProduct.allProductsSelected = req.body.selectedProducts.length === 5;
+          const updatedProduct = await existingProduct.save();
+          return res.status(200).json(updatedProduct);
+        } else {
+          // Handle case where the document doesn't exist for some reason
+          return res.status(400).json({ message: 'Unable to find existing document for the provided farmerId.' });
+        }
+      } catch (updateErr) {
+        return res.status(400).json({ message: updateErr.message });
+      }
+    } else {
+      // Handle other errors
+      return res.status(400).json({ message: err.message });
+    }
   }
 });
 
