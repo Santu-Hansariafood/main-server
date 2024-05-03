@@ -984,7 +984,7 @@ app.post('/farmerProducts', async (req, res) => {
 
   try {
     // Create a new product document
-    const newProduct = new Product({
+    const newProduct = new FarmerProduct({
       farmerId,
       farmerName,
       selectedProducts
