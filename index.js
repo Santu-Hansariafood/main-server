@@ -978,6 +978,7 @@ app.get('/farmerProducts/:id', getFarmerProduct, (req, res) => {
 app.post('/farmerProducts', async (req, res) => {
   const farmerProduct = new FarmerProduct({
     farmerName: req.body.farmerName,
+    farmerId:req.body.farmerId,
     selectedProducts: req.body.selectedProducts,
     allProductsSelected: req.body.selectedProducts.length === 5
   });
