@@ -2,6 +2,14 @@ const mongoose = require("mongoose");
 
 const locationSchema = new mongoose.Schema(
   {
+    farmerId: {
+      type: String,
+      required: true,
+    },
+    farmerName: {
+      type: String,
+      required: true,
+    },
     village: {
       type: String,
       required: true,
@@ -15,7 +23,7 @@ const locationSchema = new mongoose.Schema(
       required: true,
     },
     pin: {
-      type: String,
+      type: Number,
       required: true,
     },
   },

@@ -1078,7 +1078,9 @@ app.post('/pickuplocations', async (req, res) => {
     village: req.body.village,
     post: req.body.post,
     district: req.body.district,
-    pin: req.body.pin
+    pin: req.body.pin,
+    farmerName: req.body.farmerName,
+    farmerId:req.body.farmerId,
   });
 
   try {
