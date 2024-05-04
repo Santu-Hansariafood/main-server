@@ -1062,63 +1062,53 @@ app.delete('/farmerProducts/:id', getFarmerProduct, async (req, res) => {
 });
 
 
-app.post('/pickupLocation', async (req, res) => {
+// GET all pickup locations
+app.get('/pickuplocations', async (req, res) => {
   try {
-    // Extract data from the request body
-    const { locationData, productData, qualityData } = req.body;
-
-    // Create a new instance of MainModel with the extracted data
-    const newData = new PickupLocation({
-      locationData,
-      productData,
-      qualityData,
-    });
-
-    // Save the data to MongoDB
-    await newData.save();
-
-    // Respond with success message
-    res.status(201).json({ message: 'Data saved successfully' });
+    const pickupLocations = await PickupLocation.find();
+    res.json(pickupLocations);
   } catch (error) {
-    // Handle errors
-    console.error('Error saving data:', error);
-    res.status(500).json({ message: 'An error occurred while saving data' });
+    res.status(500).json({ message: error.message });
   }
 });
 
-app.get('/pickupLocation', async (req, res) => {
-  try {
-    // Fetch all data from the MongoDB collection
-    const data = await PickupLocation.find();
+// POST a new pickup location
+app.post('/pickuplocations', async (req, res) => {
+  const pickupLocation = new PickupLocation({
+    village: req.body.village,
+    post: req.body.post,
+    district: req.body.district,
+    pin: req.body.pin
+  });
 
-    // Respond with the fetched data
-    res.status(200).json(data);
+  try {
+    const newPickupLocation = await pickupLocation.save();
+    res.status(201).json(newPickupLocation);
   } catch (error) {
-    // Handle errors
-    console.error('Error fetching data:', error);
-    res.status(500).json({ message: 'An error occurred while fetching data' });
+    res.status(400).json({ message: error.message });
   }
 });
 
-app.get('/pickupLocation/:id', async (req, res) => {
+// GET a single pickup location by ID
+app.get('/pickuplocations/:id', getPickupLocation, (req, res) => {
+  res.json(res.pickupLocation);
+});
+
+async function getPickupLocation(req, res, next) {
+  let pickupLocation;
   try {
-    const id = req.params.id;
-
-    // Fetch data by ID from the MongoDB collection
-    const data = await PickupLocation.findById(id);
-
-    if (!data) {
-      return res.status(404).json({ message: 'Data not found' });
+    pickupLocation = await PickupLocation.findById(req.params.id);
+    if (pickupLocation == null) {
+      return res.status(404).json({ message: 'Pickup location not found' });
     }
-
-    // Respond with the fetched data
-    res.status(200).json(data);
   } catch (error) {
-    // Handle errors
-    console.error('Error fetching data by ID:', error);
-    res.status(500).json({ message: 'An error occurred while fetching data by ID' });
+    return res.status(500).json({ message: error.message });
   }
-});
+
+  res.pickupLocation = pickupLocation;
+  next();
+}
+
 mongoose.set("strictQuery", false);
 mongoose
   .connect(process.env.MONGO_URL)
