@@ -15,6 +15,7 @@ const BrokenRiceQualityParameters = require("./models/brokenRiceQualityModel");
 const MaizeQualityParameters = require("./models/maizeQualityModel");
 const ParticipateOnBid = require("./models/participateOnBidModel");
 const FarmerProduct = require('./models/farmerProductModel');
+const PickupLocation = require('./models/pickupLocationModel')
 const app = express();
 
 app.use(express.json());
@@ -1060,6 +1061,64 @@ app.delete('/farmerProducts/:id', getFarmerProduct, async (req, res) => {
   }
 });
 
+
+app.post('/pickupLocation', async (req, res) => {
+  try {
+    // Extract data from the request body
+    const { locationData, productData, qualityData } = req.body;
+
+    // Create a new instance of MainModel with the extracted data
+    const newData = new PickupLocation({
+      locationData,
+      productData,
+      qualityData,
+    });
+
+    // Save the data to MongoDB
+    await newData.save();
+
+    // Respond with success message
+    res.status(201).json({ message: 'Data saved successfully' });
+  } catch (error) {
+    // Handle errors
+    console.error('Error saving data:', error);
+    res.status(500).json({ message: 'An error occurred while saving data' });
+  }
+});
+
+app.get('/pickupLocation', async (req, res) => {
+  try {
+    // Fetch all data from the MongoDB collection
+    const data = await PickupLocation.find();
+
+    // Respond with the fetched data
+    res.status(200).json(data);
+  } catch (error) {
+    // Handle errors
+    console.error('Error fetching data:', error);
+    res.status(500).json({ message: 'An error occurred while fetching data' });
+  }
+});
+
+app.get('/pickupLocation/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    // Fetch data by ID from the MongoDB collection
+    const data = await PickupLocation.findById(id);
+
+    if (!data) {
+      return res.status(404).json({ message: 'Data not found' });
+    }
+
+    // Respond with the fetched data
+    res.status(200).json(data);
+  } catch (error) {
+    // Handle errors
+    console.error('Error fetching data by ID:', error);
+    res.status(500).json({ message: 'An error occurred while fetching data by ID' });
+  }
+});
 mongoose.set("strictQuery", false);
 mongoose
   .connect(process.env.MONGO_URL)
