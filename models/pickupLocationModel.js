@@ -26,6 +26,10 @@ const locationSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    landmark:{
+      type: String,
+      required: true,
+    }
   },
   {
     timestamps: true,

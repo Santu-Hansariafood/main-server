@@ -1,47 +1,13 @@
-// const mongoose = require('mongoose');
-
-// const farmerProductSchema = new mongoose.Schema({
-//   farmerId: {
-//     type: String,
-//     required: true,
-//   },
-//   farmerName: {
-//     type: String,
-//     required: true
-//   },
-//   selectedProducts: {
-//     type: [String],
-//     required: true
-//   },
-//   allProductsSelected: {
-//     type: Boolean,
-//     default: false
-//   }
-// },{
-//   timestamps: true
-// });
-
-// // Middleware to ensure selected products are not listed in the database
-// farmerProductSchema.pre('save', async function(next) {
-//   try {
-//     const existingProduct = await FarmerProduct.findOne({
-//       farmerId: this.farmerId,
-//       selectedProducts: { $in: this.selectedProducts }
-//     });
-//     if (existingProduct) {
-//       throw new Error('Selected product already exists for this farmer.');
-//     }
-//     next();
-//   } catch (error) {
-//     next(error);
-//   }
-// });
-
-// const FarmerProduct = mongoose.model('farmerProduct', farmerProductSchema);
-
-// module.exports = FarmerProduct;
-
 const mongoose = require('mongoose');
+
+// Define a map of product IDs to product names
+const productIdToNameMap = {
+  "1": "Maize",
+  "2": "Wheat",
+  "3": "Paddy",
+  "4": "Soya",
+  "5": "Broken Rice"
+};
 
 const farmerProductSchema = new mongoose.Schema({
   farmerId: {
@@ -64,13 +30,11 @@ const farmerProductSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Middleware to ensure selected products are not listed in the database
-farmerProductSchema.pre('save', async function(next) {
-  try {
-    next();
-  } catch (error) {
-    next(error);
-  }
+// Pre-save hook to convert product IDs to product names
+farmerProductSchema.pre('save', function(next) {
+  // Convert selected product IDs to product names
+  this.selectedProducts = this.selectedProducts.map(productId => productIdToNameMap[productId]);
+  next();
 });
 
 const FarmerProduct = mongoose.model('farmerProduct', farmerProductSchema);

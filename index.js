@@ -17,7 +17,9 @@ const ParticipateOnBid = require("./models/participateOnBidModel");
 const FarmerProduct = require('./models/farmerProductModel');
 const PickupLocation = require('./models/pickupLocationModel');
 const Order = require('./models/orderModel');
+const Quality = require('./models/qualityModel');
 const FarmerOrder = require("./models/farmerOrderModel");
+const OrderByFarmer = require("./models/orderModelByFarmer");
 const app = express();
 
 app.use(express.json());
@@ -1081,6 +1083,7 @@ app.post('/pickuplocations', async (req, res) => {
     post: req.body.post,
     district: req.body.district,
     pin: req.body.pin,
+    landmark:req.body.landmark,
     farmerName: req.body.farmerName,
     farmerId:req.body.farmerId,
   });
@@ -1238,6 +1241,208 @@ async function getFarmer(req, res, next) {
   res.farmer = farmer;
   next();
 }
+
+
+
+
+// GET all quality parameters
+app.get('/quality-parameter', async (req, res) => {
+  try {
+    const qualities = await Quality.find();
+    res.json(qualities);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// GET a specific quality parameter by ID
+app.get('/quality-parameter/:id', getQuality, (req, res) => {
+  res.json(res.quality);
+});
+
+// POST a new quality parameter
+app.post('/quality-parameter', async (req, res) => {
+  const quality = new Quality({
+    farmerId: req.body.farmerId,
+    farmerName: req.body.farmerName,
+    broken: req.body.broken,
+    fungus: req.body.fungus,
+    damage: req.body.damage,
+    smallgain: req.body.smallgain,
+    moisture: req.body.moisture
+  });
+
+  try {
+    const newQuality = await quality.save();
+    res.status(201).json(newQuality);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// UPDATE a quality parameter
+app.put('/quality-parameter/:id', getQuality, async (req, res) => {
+  if (req.body.farmerId != null) {
+    res.quality.farmerId = req.body.farmerId;
+  }
+  if (req.body.farmerName != null) {
+    res.quality.farmerName = req.body.farmerName;
+  }
+  if (req.body.broken != null) {
+    res.quality.broken = req.body.broken;
+  }
+  if (req.body.fungus != null) {
+    res.quality.fungus = req.body.fungus;
+  }
+  if (req.body.damage != null) {
+    res.quality.damage = req.body.damage;
+  }
+  if (req.body.smallgain != null) {
+    res.quality.smallgain = req.body.smallgain;
+  }
+  if (req.body.moisture != null) {
+    res.quality.moisture = req.body.moisture;
+  }
+
+  try {
+    const updatedQuality = await res.quality.save();
+    res.json(updatedQuality);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// DELETE a quality parameter
+app.delete('quality-parameter/:id', getQuality, async (req, res) => {
+  try {
+    await res.quality.remove();
+    res.json({ message: 'Deleted Quality Parameter' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Middleware function to get quality parameter by ID
+async function getQuality(req, res, next) {
+  try {
+    const quality = await Quality.findById(req.params.id);
+    if (quality == null) {
+      return res.status(404).json({ message: 'Cannot find quality parameter' });
+    }
+    res.quality = quality;
+    next();
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+}
+
+
+// order by farmer 
+
+app.get('/orderByFarmer', async (req, res) => {
+  try {
+    const orders = await OrderByFarmer.find();
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Get order by ID
+app.get('/orderByFarmer/:id', async (req, res) => {
+  try {
+    const order = await OrderByFarmer.findById(req.params.id);
+    if (order == null) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+    res.json(order);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Create a new order
+// Create a new order
+app.post('/orderByFarmer', async (req, res) => {
+  const order = new OrderByFarmer({
+    farmerId: req.body.farmerId,
+    farmerName: req.body.farmerName,
+    productName: req.body.productName,
+    totalBags: req.body.totalBags,
+    weightPerBag: req.body.weightPerBag,
+    ratePerTon: req.body.ratePerTon,
+    totalPrice: req.body.totalPrice,
+    qualityParameters: req.body.qualityParameters,
+    address: req.body.address
+  });
+
+  try {
+    const newOrder = await order.save();
+    res.status(201).json(newOrder);
+  } catch (err) {
+    console.error('Error creating order:', err);  // Add this line
+    res.status(400).json({ message: err.message });
+  }
+});
+
+
+// Update an order
+app.put('/orderByFarmer/:id', async (req, res) => {
+  try {
+    const order = await OrderByFarmer.findById(req.params.id);
+    if (order == null) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    if (req.body.farmerId != null) {
+      order.farmerId = req.body.farmerId;
+    }
+    if (req.body.farmerName != null) {
+      order.farmerName = req.body.farmerName;
+    }
+    if (req.body.productName != null) {
+      order.productName = req.body.productName;
+    }
+    if (req.body.totalBags != null) {
+      order.totalBags = req.body.totalBags;
+    }
+    if (req.body.weightPerBag != null) {
+      order.weightPerBag = req.body.weightPerBag;
+    }
+    if (req.body.ratePerTon != null) {
+      order.ratePerTon = req.body.ratePerTon;
+    }
+    if (req.body.totalPrice != null) {
+      order.totalPrice = req.body.totalPrice;
+    }
+    if (req.body.qualityParameters != null) {
+      order.qualityParameters = req.body.qualityParameters;
+    }
+    if (req.body.address != null) {
+      order.address = req.body.address;
+    }
+
+    const updatedOrder = await order.save();
+    res.json(updatedOrder);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Delete an order
+app.delete('/orderByFarmer/:id', async (req, res) => {
+  try {
+    const order = await OrderByFarmer.findById(req.params.id);
+    if (order == null) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    await order.remove();
+    res.json({ message: 'Order deleted' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 
 mongoose.set("strictQuery", false);
