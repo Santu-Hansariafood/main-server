@@ -300,52 +300,53 @@ app.get("/registerFarmer/:id", async (req, res) => {
   }
 });
 
-app.post("/employeeRegister", async (req, res) => {
+app.post('/employeeLogin', async (req, res) => {
+  const { mobile, password } = req.body;
+
   try {
-    const employeeRegister = await EmployeeRegister.create(req.body);
-    res.status(201).json(employeeRegister);
+    const employee = await EmployeeRegister.findOne({ mobile });
+
+    if (employee && employee.password === password) {
+      res.json({ success: true, employee });
+    } else {
+      res.json({ success: false, message: 'Invalid credentials' });
+    }
   } catch (error) {
     console.log(error.message);
     res.status(500).json({
-      message: error.message,
+      success: false,
+      message: 'Server error',
     });
   }
 });
 
 // GET employeeRegister
-
-app.get("/employeeRegister", async (req, res) => {
-  try {
-    const employeeRegister = await EmployeeRegister.find({});
-    res.status(200).json(employeeRegister);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-//find the employeeRegister by  its ID
-
+// Get employee by ID
 app.get("/employeeRegister/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const employeeRegister = await EmployeeRegister.findById(id);
+    if (!employeeRegister) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
     res.status(200).json(employeeRegister);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-app.get("/employeeRegister/:mobile", (req, res) => {
-  const mobile = req.params.mobile;
-  EmployeeRegister.find({ mobile: mobile }, (err, employees) => {
-    if (err) {
-      return res.status(500).json({ message: "Internal server error" });
-    }
-    if (!employees || employees.length === 0) {
+// Get employee by mobile number
+app.get("/employeeRegister/mobile/:mobile", async (req, res) => {
+  try {
+    const { mobile } = req.params;
+    const employeeRegister = await EmployeeRegister.find({ mobile: mobile });
+    if (!employeeRegister || employeeRegister.length === 0) {
       return res.status(404).json({ message: "Employee not found" });
     }
-    res.json(employees);
-  });
+    res.status(200).json(employeeRegister);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 });
 
 //update the employeeRegister in to the Buyercompany
