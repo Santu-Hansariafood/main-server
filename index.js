@@ -20,6 +20,7 @@ const Order = require('./models/orderModel');
 const Quality = require('./models/qualityModel');
 const FarmerOrder = require("./models/farmerOrderModel");
 const OrderByFarmer = require("./models/orderModelByFarmer");
+const Godown = require("./models/godownModel");
 const app = express();
 
 app.use(express.json());
@@ -1454,6 +1455,66 @@ app.delete('/orderByFarmer/:id', async (req, res) => {
     res.json({ message: 'Order deleted' });
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+});
+
+
+app.post('/godown', async (req, res) => {
+  try {
+    const godown = new Godown(req.body);
+    await godown.save();
+    res.status(201).json(godown);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Get all Godowns
+app.get('/godown', async (req, res) => {
+  try {
+    const godown = await Godown.find();
+    res.status(200).json(godown);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Get a single Godown by ID
+app.get('/godown/:id', async (req, res) => {
+  try {
+    const godown = await Godown.findById(req.params.id);
+    if (!godown) {
+      return res.status(404).json({ message: "Godown not found" });
+    }
+    res.status(200).json(godown);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Update a Godown by ID
+app.put('/godown/:id', async (req, res) => {
+  try {
+    const godown = await Godown.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!godown) {
+      return res.status(404).json({ message: "Godown not found" });
+    }
+    res.status(200).json(godown);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Delete a Godown by ID
+app.delete('/godown/:id', async (req, res) => {
+  try {
+    const godown = await Godown.findByIdAndDelete(req.params.id);
+    if (!godown) {
+      return res.status(404).json({ message: "Godown not found" });
+    }
+    res.status(200).json({ message: "Godown deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 });
 
