@@ -300,7 +300,7 @@ app.get("/registerFarmer/:id", async (req, res) => {
   }
 });
 
-app.post('/employeeLogin', async (req, res) => {
+app.post('/employeeRegister', async (req, res) => {
   const { mobile, password } = req.body;
 
   try {
@@ -321,6 +321,18 @@ app.post('/employeeLogin', async (req, res) => {
 });
 
 // GET employeeRegister
+app.get("/employeeRegister", async (req, res) => {
+  try {
+    const employeeRegisters = await EmployeeRegister.find();
+    if (!employeeRegisters || employeeRegisters.length === 0) {
+      return res.status(404).json({ message: "No employees found" });
+    }
+    res.status(200).json(employeeRegisters);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // Get employee by ID
 app.get("/employeeRegister/:id", async (req, res) => {
   try {

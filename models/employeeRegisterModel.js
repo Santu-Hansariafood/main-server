@@ -48,7 +48,6 @@ employeeRegisterSchema.post("save", function (error, doc, next) {
   }
 });
 
-
 const EmployeeRegister = mongoose.model(
   "EmployeeRegister",
   employeeRegisterSchema
