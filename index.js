@@ -301,23 +301,49 @@ app.get("/registerFarmer/:id", async (req, res) => {
   }
 });
 
-app.post('/employeeRegister', async (req, res) => {
-  const { mobile, password } = req.body;
+// app.post('/employeeRegister', async (req, res) => {
+//   const { mobile, password } = req.body;
+
+//   try {
+//     const employee = await EmployeeRegister.findOne({ mobile });
+
+//     if (employee && employee.password === password) {
+//       res.json({ success: true, employee });
+//     } else {
+//       res.json({ success: false, message: 'Invalid credentials' });
+//     }
+//   } catch (error) {
+//     console.log(error.message);
+//     res.status(500).json({
+//       success: false,
+//       message: 'Server error',
+//     });
+//   }
+// });
+app.post("/employeeRegister", async (req, res) => {
+  const { firstname, lastname, mobile, email, role, password, confirmPassword } = req.body;
+
+  if (password !== confirmPassword) {
+    return res.json({ success: false, message: "Passwords do not match" });
+  }
 
   try {
-    const employee = await EmployeeRegister.findOne({ mobile });
-
-    if (employee && employee.password === password) {
-      res.json({ success: true, employee });
-    } else {
-      res.json({ success: false, message: 'Invalid credentials' });
-    }
-  } catch (error) {
-    console.log(error.message);
-    res.status(500).json({
-      success: false,
-      message: 'Server error',
+    const newEmployee = new EmployeeRegister({
+      firstname,
+      lastname,
+      mobile,
+      email,
+      role,
+      password,
+      confirmPassword,
     });
+
+    await newEmployee.save();
+
+    res.json({ success: true, message: "Employee registered successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 });
 
