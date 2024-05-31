@@ -14,10 +14,10 @@ const Deal = require("./models/dealsModel");
 const BrokenRiceQualityParameters = require("./models/brokenRiceQualityModel");
 const MaizeQualityParameters = require("./models/maizeQualityModel");
 const ParticipateOnBid = require("./models/participateOnBidModel");
-const FarmerProduct = require('./models/farmerProductModel');
-const PickupLocation = require('./models/pickupLocationModel');
-const Order = require('./models/orderModel');
-const Quality = require('./models/qualityModel');
+const FarmerProduct = require("./models/farmerProductModel");
+const PickupLocation = require("./models/pickupLocationModel");
+const Order = require("./models/orderModel");
+const Quality = require("./models/qualityModel");
 const FarmerOrder = require("./models/farmerOrderModel");
 const OrderByFarmer = require("./models/orderModelByFarmer");
 const Godown = require("./models/godownModel");
@@ -72,13 +72,14 @@ app.post(
         branchName,
         accountHolderName,
         bankName,
+        password,
       } = req.body;
 
-      const profilePhotoPath = req.files["profilePhoto"][0].path;
-      const adherCardPhotoPath = req.files["adherCardPhoto"][0].path;
-      const panCardPhotoPath = req.files["panCardPhoto"][0].path;
-      const bankCardPhotoPath = req.files["bankCardPhoto"][0].path;
-      const gstCardPhotoPath = req.files["gstCardPhoto"][0].path;
+      const profilePhotoPath = req.files["profilePhoto"]?.[0]?.path || null;
+      const adherCardPhotoPath = req.files["adherCardPhoto"]?.[0]?.path || null;
+      const panCardPhotoPath = req.files["panCardPhoto"]?.[0]?.path || null;
+      const bankCardPhotoPath = req.files["bankCardPhoto"]?.[0]?.path || null;
+      const gstCardPhotoPath = req.files["gstCardPhoto"]?.[0]?.path || null;
 
       const newFarmer = await FarmerRegister.create({
         name,
@@ -98,6 +99,7 @@ app.post(
         branchName,
         accountHolderName,
         bankName,
+        password,
         profilePhoto: profilePhotoPath,
         adherCardPhoto: adherCardPhotoPath,
         panCardPhoto: panCardPhotoPath,
@@ -113,6 +115,92 @@ app.post(
     }
   }
 );
+
+app.post('/forgot-password', async (req, res) => {
+  const { mobileNumber, aadhaarNumber } = req.body;
+
+  try {
+    const farmer = await FarmerRegister.findOne({ mobile: mobileNumber, adherNumber: aadhaarNumber });
+    if (farmer) {
+      res.json({ password: farmer.password });
+    } else {
+      res.status(404).send('Farmer not found');
+    }
+  } catch (error) {
+    res.status(500).send('Server error');
+  }
+});
+
+// app.post(
+//   "/registerFarmer",
+//   upload.fields([
+//     { name: "profilePhoto", maxCount: 1 },
+//     { name: "adherCardPhoto", maxCount: 1 },
+//     { name: "panCardPhoto", maxCount: 1 },
+//     { name: "bankCardPhoto", maxCount: 1 },
+//     { name: "gstCardPhoto", maxCount: 1 },
+//   ]),
+//   async (req, res) => {
+//     try {
+//       const {
+//         name,
+//         fatherName,
+//         mobile,
+//         email,
+//         state,
+//         district,
+//         policeStation,
+//         village,
+//         pinCode,
+//         adherNumber,
+//         panNumber,
+//         gstNumber,
+//         accountNumber,
+//         ifscNumber,
+//         branchName,
+//         accountHolderName,
+//         bankName,
+//       } = req.body;
+
+//       const profilePhotoPath = req.files["profilePhoto"][0].path;
+//       const adherCardPhotoPath = req.files["adherCardPhoto"][0].path;
+//       const panCardPhotoPath = req.files["panCardPhoto"][0].path;
+//       const bankCardPhotoPath = req.files["bankCardPhoto"][0].path;
+//       const gstCardPhotoPath = req.files["gstCardPhoto"][0].path;
+
+//       const newFarmer = await FarmerRegister.create({
+//         name,
+//         fatherName,
+//         mobile,
+//         email,
+//         state,
+//         district,
+//         policeStation,
+//         village,
+//         pinCode,
+//         adherNumber,
+//         panNumber,
+//         gstNumber,
+//         accountNumber,
+//         ifscNumber,
+//         branchName,
+//         accountHolderName,
+//         bankName,
+//         profilePhoto: profilePhotoPath,
+//         adherCardPhoto: adherCardPhotoPath,
+//         panCardPhoto: panCardPhotoPath,
+//         bankCardPhoto: bankCardPhotoPath,
+//         gstCardPhoto: gstCardPhotoPath,
+//       });
+
+//       res
+//         .status(201)
+//         .json({ msg: "New farmer registered successfully.", data: newFarmer });
+//     } catch (error) {
+//       res.status(500).json({ message: error.message });
+//     }
+//   }
+// );
 
 app.get("/registerFarmer", async (req, res) => {
   try {
@@ -301,7 +389,7 @@ app.get("/registerFarmer/:id", async (req, res) => {
   }
 });
 
-app.post('/employeeRegister', async (req, res) => {
+app.post("/employeeRegister", async (req, res) => {
   const { mobile, password } = req.body;
 
   try {
@@ -310,13 +398,13 @@ app.post('/employeeRegister', async (req, res) => {
     if (employee && employee.password === password) {
       res.json({ success: true, employee });
     } else {
-      res.json({ success: false, message: 'Invalid credentials' });
+      res.json({ success: false, message: "Invalid credentials" });
     }
   } catch (error) {
     console.log(error.message);
     res.status(500).json({
       success: false,
-      message: 'Server error',
+      message: "Server error",
     });
   }
 });
@@ -460,7 +548,6 @@ app.get("/buyer/:id", async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
-
 
 app.post("/buyer", async (req, res) => {
   try {
@@ -646,15 +733,21 @@ app.delete("/registerBuyerCompany/:id", async (req, res) => {
   }
 });
 
-
 app.post("/deal", async (req, res) => {
   try {
     const { selectedProduct, ...dealData } = req.body;
     const deal = await Deal.create({
       selectedProduct, // Include selectedProduct field
       ...dealData,
-      qualityParameters: selectedProduct === "Soya" ? { protein: req.body.qualityParameters.protein } : 
-                         selectedProduct === "Maize" || selectedProduct === "Broken Rice" ? { moisture: req.body.qualityParameters.moisture, fungus: req.body.qualityParameters.fungus } : {}
+      qualityParameters:
+        selectedProduct === "Soya"
+          ? { protein: req.body.qualityParameters.protein }
+          : selectedProduct === "Maize" || selectedProduct === "Broken Rice"
+          ? {
+              moisture: req.body.qualityParameters.moisture,
+              fungus: req.body.qualityParameters.fungus,
+            }
+          : {},
     });
 
     res.status(201).json(deal);
@@ -663,8 +756,6 @@ app.post("/deal", async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
-
-
 
 app.get("/deal", async (req, res) => {
   try {
@@ -932,62 +1023,68 @@ app.delete("/soyaQualityParameters/:id", async (req, res) => {
   }
 });
 
-app.post('/participateOnBid', async (req, res) => {
+app.post("/participateOnBid", async (req, res) => {
   try {
-      const participateOnBid = new ParticipateOnBid(req.body);
-      await participateOnBid.save();
-      res.status(201).send(participateOnBid);
+    const participateOnBid = new ParticipateOnBid(req.body);
+    await participateOnBid.save();
+    res.status(201).send(participateOnBid);
   } catch (error) {
-      res.status(400).send(error);
+    res.status(400).send(error);
   }
 });
 
 // GET operation to retrieve all participateOnBids
-app.get('/participateOnBid', async (req, res) => {
+app.get("/participateOnBid", async (req, res) => {
   try {
-      const participateOnBids = await ParticipateOnBid.find();
-      res.send(participateOnBids);
+    const participateOnBids = await ParticipateOnBid.find();
+    res.send(participateOnBids);
   } catch (error) {
-      res.status(500).send(error);
+    res.status(500).send(error);
   }
 });
 
 // GET operation to retrieve a participateOnBid by ID
-app.get('/participateOnBid/:id', async (req, res) => {
+app.get("/participateOnBid/:id", async (req, res) => {
   try {
-      const participateOnBid = await ParticipateOnBid.findById(req.params.id);
-      if (!participateOnBid) {
-          return res.status(404).send({ error: 'ParticipateOnBid not found' });
-      }
-      res.send(participateOnBid);
+    const participateOnBid = await ParticipateOnBid.findById(req.params.id);
+    if (!participateOnBid) {
+      return res.status(404).send({ error: "ParticipateOnBid not found" });
+    }
+    res.send(participateOnBid);
   } catch (error) {
-      res.status(500).send(error);
+    res.status(500).send(error);
   }
 });
 
 // PUT operation to update a participateOnBid by ID
-app.put('/participateOnBid/:id', async (req, res) => {
+app.put("/participateOnBid/:id", async (req, res) => {
   try {
-      const participateOnBid = await ParticipateOnBid.findByIdAndUpdate(req.params.id, req.body, { new: true });
-      if (!participateOnBid) {
-          return res.status(404).send({ error: 'ParticipateOnBid not found' });
-      }
-      res.send(participateOnBid);
+    const participateOnBid = await ParticipateOnBid.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+    if (!participateOnBid) {
+      return res.status(404).send({ error: "ParticipateOnBid not found" });
+    }
+    res.send(participateOnBid);
   } catch (error) {
-      res.status(400).send(error);
+    res.status(400).send(error);
   }
 });
 
 // DELETE operation to delete a participateOnBid by ID
-app.delete('/participateOnBid/:id', async (req, res) => {
+app.delete("/participateOnBid/:id", async (req, res) => {
   try {
-      const participateOnBid = await ParticipateOnBid.findByIdAndDelete(req.params.id);
-      if (!participateOnBid) {
-          return res.status(404).send({ error: 'ParticipateOnBid not found' });
-      }
-      res.send(participateOnBid);
+    const participateOnBid = await ParticipateOnBid.findByIdAndDelete(
+      req.params.id
+    );
+    if (!participateOnBid) {
+      return res.status(404).send({ error: "ParticipateOnBid not found" });
+    }
+    res.send(participateOnBid);
   } catch (error) {
-      res.status(500).send(error);
+    res.status(500).send(error);
   }
 });
 
@@ -995,7 +1092,7 @@ async function getFarmerProduct(req, res, next) {
   try {
     const farmerProduct = await FarmerProduct.findById(req.params.id);
     if (!farmerProduct) {
-      return res.status(404).json({ message: 'Cannot find farmer product' });
+      return res.status(404).json({ message: "Cannot find farmer product" });
     }
     res.farmerProduct = farmerProduct;
     next();
@@ -1005,7 +1102,7 @@ async function getFarmerProduct(req, res, next) {
 }
 
 // GET all farmer products
-app.get('/farmerProducts', async (req, res) => {
+app.get("/farmerProducts", async (req, res) => {
   try {
     const farmerProducts = await FarmerProduct.find();
     res.json(farmerProducts);
@@ -1015,7 +1112,7 @@ app.get('/farmerProducts', async (req, res) => {
 });
 
 // GET a specific farmer product by ID
-app.get('/farmerProducts/:id', getFarmerProduct, (req, res) => {
+app.get("/farmerProducts/:id", getFarmerProduct, (req, res) => {
   res.json(res.farmerProduct);
 });
 
@@ -1035,11 +1132,11 @@ app.get('/farmerProducts/:id', getFarmerProduct, (req, res) => {
 //     res.status(400).json({ message: err.message });
 //   }
 // });
-app.post('/farmerProducts', async (req, res) => {
+app.post("/farmerProducts", async (req, res) => {
   try {
     // Check if farmerId is provided
     if (!req.body.farmerId) {
-      return res.status(400).json({ message: 'farmerId is required.' });
+      return res.status(400).json({ message: "farmerId is required." });
     }
 
     // Try to save the new farmer product
@@ -1047,7 +1144,7 @@ app.post('/farmerProducts', async (req, res) => {
       farmerName: req.body.farmerName,
       farmerId: req.body.farmerId,
       selectedProducts: req.body.selectedProducts,
-      allProductsSelected: req.body.selectedProducts.length === 5
+      allProductsSelected: req.body.selectedProducts.length === 5,
     });
 
     const newFarmerProduct = await farmerProduct.save();
@@ -1057,16 +1154,24 @@ app.post('/farmerProducts', async (req, res) => {
     if (err.code === 11000 && err.keyPattern && err.keyPattern.farmerId) {
       try {
         // If it's a duplicate key error for farmerId, update the existing document
-        const existingProduct = await FarmerProduct.findOne({ farmerId: req.body.farmerId });
+        const existingProduct = await FarmerProduct.findOne({
+          farmerId: req.body.farmerId,
+        });
         if (existingProduct) {
           existingProduct.farmerName = req.body.farmerName;
           existingProduct.selectedProducts = req.body.selectedProducts;
-          existingProduct.allProductsSelected = req.body.selectedProducts.length === 5;
+          existingProduct.allProductsSelected =
+            req.body.selectedProducts.length === 5;
           const updatedProduct = await existingProduct.save();
           return res.status(200).json(updatedProduct);
         } else {
           // Handle case where the document doesn't exist for some reason
-          return res.status(400).json({ message: 'Unable to find existing document for the provided farmerId.' });
+          return res
+            .status(400)
+            .json({
+              message:
+                "Unable to find existing document for the provided farmerId.",
+            });
         }
       } catch (updateErr) {
         return res.status(400).json({ message: updateErr.message });
@@ -1079,13 +1184,14 @@ app.post('/farmerProducts', async (req, res) => {
 });
 
 // PUT update a farmer product
-app.put('/farmerProducts/:id', getFarmerProduct, async (req, res) => {
+app.put("/farmerProducts/:id", getFarmerProduct, async (req, res) => {
   if (req.body.farmerName != null) {
     res.farmerProduct.farmerName = req.body.farmerName;
   }
   if (req.body.selectedProducts != null) {
     res.farmerProduct.selectedProducts = req.body.selectedProducts;
-    res.farmerProduct.allProductsSelected = req.body.selectedProducts.length === 5;
+    res.farmerProduct.allProductsSelected =
+      req.body.selectedProducts.length === 5;
   }
   try {
     const updatedFarmerProduct = await res.farmerProduct.save();
@@ -1096,18 +1202,17 @@ app.put('/farmerProducts/:id', getFarmerProduct, async (req, res) => {
 });
 
 // DELETE a farmer product
-app.delete('/farmerProducts/:id', getFarmerProduct, async (req, res) => {
+app.delete("/farmerProducts/:id", getFarmerProduct, async (req, res) => {
   try {
     await res.farmerProduct.remove();
-    res.json({ message: 'Deleted farmer product' });
+    res.json({ message: "Deleted farmer product" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-
 // GET all pickup locations
-app.get('/pickuplocations', async (req, res) => {
+app.get("/pickuplocations", async (req, res) => {
   try {
     const pickupLocations = await PickupLocation.find();
     res.json(pickupLocations);
@@ -1117,15 +1222,15 @@ app.get('/pickuplocations', async (req, res) => {
 });
 
 // POST a new pickup location
-app.post('/pickuplocations', async (req, res) => {
+app.post("/pickuplocations", async (req, res) => {
   const pickupLocation = new PickupLocation({
     village: req.body.village,
     post: req.body.post,
     district: req.body.district,
     pin: req.body.pin,
-    landmark:req.body.landmark,
+    landmark: req.body.landmark,
     farmerName: req.body.farmerName,
-    farmerId:req.body.farmerId,
+    farmerId: req.body.farmerId,
   });
 
   try {
@@ -1137,7 +1242,7 @@ app.post('/pickuplocations', async (req, res) => {
 });
 
 // GET a single pickup location by ID
-app.get('/pickuplocations/:id', getPickupLocation, (req, res) => {
+app.get("/pickuplocations/:id", getPickupLocation, (req, res) => {
   res.json(res.pickupLocation);
 });
 
@@ -1146,7 +1251,7 @@ async function getPickupLocation(req, res, next) {
   try {
     pickupLocation = await PickupLocation.findById(req.params.id);
     if (pickupLocation == null) {
-      return res.status(404).json({ message: 'Pickup location not found' });
+      return res.status(404).json({ message: "Pickup location not found" });
     }
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -1156,43 +1261,43 @@ async function getPickupLocation(req, res, next) {
   next();
 }
 
-app.post('/orders', async (req, res) => {
+app.post("/orders", async (req, res) => {
   try {
     const orderData = req.body;
     const order = await Order.create(orderData);
     res.status(201).json(order);
   } catch (error) {
-    console.error('Error creating order:', error);
-    res.status(500).json({ error: 'Failed to create order' });
+    console.error("Error creating order:", error);
+    res.status(500).json({ error: "Failed to create order" });
   }
 });
 
 // GET endpoint to retrieve all orders
-app.get('/orders', async (req, res) => {
+app.get("/orders", async (req, res) => {
   try {
     const orders = await Order.find();
     res.json(orders);
   } catch (error) {
-    console.error('Error retrieving orders:', error);
-    res.status(500).json({ error: 'Failed to retrieve orders' });
+    console.error("Error retrieving orders:", error);
+    res.status(500).json({ error: "Failed to retrieve orders" });
   }
 });
 
-app.get('/orders/:id', async (req, res) => {
+app.get("/orders/:id", async (req, res) => {
   try {
     const orderId = req.params.id;
     const order = await Order.findById(orderId);
     if (!order) {
-      return res.status(404).json({ error: 'Order not found' });
+      return res.status(404).json({ error: "Order not found" });
     }
     res.json(order);
   } catch (error) {
-    console.error('Error retrieving order by ID:', error);
-    res.status(500).json({ error: 'Failed to retrieve order' });
+    console.error("Error retrieving order by ID:", error);
+    res.status(500).json({ error: "Failed to retrieve order" });
   }
 });
 
-app.get('/farmerOrder', async (req, res) => {
+app.get("/farmerOrder", async (req, res) => {
   try {
     const farmers = await FarmerOrder.find();
     res.json(farmers);
@@ -1202,12 +1307,12 @@ app.get('/farmerOrder', async (req, res) => {
 });
 
 // GET a farmer by ID
-app.get('/farmerOrder/:id', getFarmer, (req, res) => {
+app.get("/farmerOrder/:id", getFarmer, (req, res) => {
   res.json(res.farmer);
 });
 
 // POST a new farmer
-app.post('/farmerOrder', async (req, res) => {
+app.post("/farmerOrder", async (req, res) => {
   const farmer = new FarmerOrder({
     farmerName: req.body.farmerName,
     farmerId: req.body.farmerId,
@@ -1215,7 +1320,7 @@ app.post('/farmerOrder', async (req, res) => {
     weightPerBag: req.body.weightPerBag,
     ratePerTon: req.body.ratePerTon,
     totalRupees: req.body.totalRupees,
-    totalRupeesWords: req.body.totalRupeesWords
+    totalRupeesWords: req.body.totalRupeesWords,
   });
 
   try {
@@ -1227,7 +1332,7 @@ app.post('/farmerOrder', async (req, res) => {
 });
 
 // PUT update a farmer
-app.put('/farmerOrder/:id', getFarmer, async (req, res) => {
+app.put("/farmerOrder/:id", getFarmer, async (req, res) => {
   if (req.body.farmerName != null) {
     res.farmer.farmerName = req.body.farmerName;
   }
@@ -1258,10 +1363,10 @@ app.put('/farmerOrder/:id', getFarmer, async (req, res) => {
 });
 
 // DELETE a farmer
-app.delete('/farmerOrder/:id', getFarmer, async (req, res) => {
+app.delete("/farmerOrder/:id", getFarmer, async (req, res) => {
   try {
     await res.farmer.remove();
-    res.json({ message: 'Deleted farmer' });
+    res.json({ message: "Deleted farmer" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -1273,7 +1378,7 @@ async function getFarmer(req, res, next) {
   try {
     farmer = await FarmerOrder.findById(req.params.id);
     if (farmer == null) {
-      return res.status(404).json({ message: 'Cannot find farmer' });
+      return res.status(404).json({ message: "Cannot find farmer" });
     }
   } catch (err) {
     return res.status(500).json({ message: err.message });
@@ -1282,11 +1387,8 @@ async function getFarmer(req, res, next) {
   next();
 }
 
-
-
-
 // GET all quality parameters
-app.get('/quality-parameter', async (req, res) => {
+app.get("/quality-parameter", async (req, res) => {
   try {
     const qualities = await Quality.find();
     res.json(qualities);
@@ -1296,12 +1398,12 @@ app.get('/quality-parameter', async (req, res) => {
 });
 
 // GET a specific quality parameter by ID
-app.get('/quality-parameter/:id', getQuality, (req, res) => {
+app.get("/quality-parameter/:id", getQuality, (req, res) => {
   res.json(res.quality);
 });
 
 // POST a new quality parameter
-app.post('/quality-parameter', async (req, res) => {
+app.post("/quality-parameter", async (req, res) => {
   const quality = new Quality({
     farmerId: req.body.farmerId,
     farmerName: req.body.farmerName,
@@ -1309,7 +1411,7 @@ app.post('/quality-parameter', async (req, res) => {
     fungus: req.body.fungus,
     damage: req.body.damage,
     smallgain: req.body.smallgain,
-    moisture: req.body.moisture
+    moisture: req.body.moisture,
   });
 
   try {
@@ -1321,7 +1423,7 @@ app.post('/quality-parameter', async (req, res) => {
 });
 
 // UPDATE a quality parameter
-app.put('/quality-parameter/:id', getQuality, async (req, res) => {
+app.put("/quality-parameter/:id", getQuality, async (req, res) => {
   if (req.body.farmerId != null) {
     res.quality.farmerId = req.body.farmerId;
   }
@@ -1353,10 +1455,10 @@ app.put('/quality-parameter/:id', getQuality, async (req, res) => {
 });
 
 // DELETE a quality parameter
-app.delete('quality-parameter/:id', getQuality, async (req, res) => {
+app.delete("quality-parameter/:id", getQuality, async (req, res) => {
   try {
     await res.quality.remove();
-    res.json({ message: 'Deleted Quality Parameter' });
+    res.json({ message: "Deleted Quality Parameter" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -1367,7 +1469,7 @@ async function getQuality(req, res, next) {
   try {
     const quality = await Quality.findById(req.params.id);
     if (quality == null) {
-      return res.status(404).json({ message: 'Cannot find quality parameter' });
+      return res.status(404).json({ message: "Cannot find quality parameter" });
     }
     res.quality = quality;
     next();
@@ -1376,10 +1478,9 @@ async function getQuality(req, res, next) {
   }
 }
 
+// order by farmer
 
-// order by farmer 
-
-app.get('/orderByFarmer', async (req, res) => {
+app.get("/orderByFarmer", async (req, res) => {
   try {
     const orders = await OrderByFarmer.find();
     res.json(orders);
@@ -1389,11 +1490,11 @@ app.get('/orderByFarmer', async (req, res) => {
 });
 
 // Get order by ID
-app.get('/orderByFarmer/:id', async (req, res) => {
+app.get("/orderByFarmer/:id", async (req, res) => {
   try {
     const order = await OrderByFarmer.findById(req.params.id);
     if (order == null) {
-      return res.status(404).json({ message: 'Order not found' });
+      return res.status(404).json({ message: "Order not found" });
     }
     res.json(order);
   } catch (err) {
@@ -1403,7 +1504,7 @@ app.get('/orderByFarmer/:id', async (req, res) => {
 
 // Create a new order
 // Create a new order
-app.post('/orderByFarmer', async (req, res) => {
+app.post("/orderByFarmer", async (req, res) => {
   const order = new OrderByFarmer({
     farmerId: req.body.farmerId,
     farmerName: req.body.farmerName,
@@ -1413,25 +1514,24 @@ app.post('/orderByFarmer', async (req, res) => {
     ratePerTon: req.body.ratePerTon,
     totalPrice: req.body.totalPrice,
     qualityParameters: req.body.qualityParameters,
-    address: req.body.address
+    address: req.body.address,
   });
 
   try {
     const newOrder = await order.save();
     res.status(201).json(newOrder);
   } catch (err) {
-    console.error('Error creating order:', err);  // Add this line
+    console.error("Error creating order:", err); // Add this line
     res.status(400).json({ message: err.message });
   }
 });
 
-
 // Update an order
-app.put('/orderByFarmer/:id', async (req, res) => {
+app.put("/orderByFarmer/:id", async (req, res) => {
   try {
     const order = await OrderByFarmer.findById(req.params.id);
     if (order == null) {
-      return res.status(404).json({ message: 'Order not found' });
+      return res.status(404).json({ message: "Order not found" });
     }
 
     if (req.body.farmerId != null) {
@@ -1470,22 +1570,21 @@ app.put('/orderByFarmer/:id', async (req, res) => {
 });
 
 // Delete an order
-app.delete('/orderByFarmer/:id', async (req, res) => {
+app.delete("/orderByFarmer/:id", async (req, res) => {
   try {
     const order = await OrderByFarmer.findById(req.params.id);
     if (order == null) {
-      return res.status(404).json({ message: 'Order not found' });
+      return res.status(404).json({ message: "Order not found" });
     }
 
     await order.remove();
-    res.json({ message: 'Order deleted' });
+    res.json({ message: "Order deleted" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-
-app.post('/godown', async (req, res) => {
+app.post("/godown", async (req, res) => {
   try {
     const godown = new Godown(req.body);
     await godown.save();
@@ -1496,7 +1595,7 @@ app.post('/godown', async (req, res) => {
 });
 
 // Get all Godowns
-app.get('/godown', async (req, res) => {
+app.get("/godown", async (req, res) => {
   try {
     const godown = await Godown.find();
     res.status(200).json(godown);
@@ -1506,7 +1605,7 @@ app.get('/godown', async (req, res) => {
 });
 
 // Get a single Godown by ID
-app.get('/godown/:id', async (req, res) => {
+app.get("/godown/:id", async (req, res) => {
   try {
     const godown = await Godown.findById(req.params.id);
     if (!godown) {
@@ -1519,9 +1618,12 @@ app.get('/godown/:id', async (req, res) => {
 });
 
 // Update a Godown by ID
-app.put('/godown/:id', async (req, res) => {
+app.put("/godown/:id", async (req, res) => {
   try {
-    const godown = await Godown.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    const godown = await Godown.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
     if (!godown) {
       return res.status(404).json({ message: "Godown not found" });
     }
@@ -1532,7 +1634,7 @@ app.put('/godown/:id', async (req, res) => {
 });
 
 // Delete a Godown by ID
-app.delete('/godown/:id', async (req, res) => {
+app.delete("/godown/:id", async (req, res) => {
   try {
     const godown = await Godown.findByIdAndDelete(req.params.id);
     if (!godown) {
@@ -1543,7 +1645,6 @@ app.delete('/godown/:id', async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
-
 
 mongoose.set("strictQuery", false);
 mongoose

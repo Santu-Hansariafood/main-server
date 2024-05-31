@@ -10,6 +10,7 @@ const locationSchema = new mongoose.Schema({
 const godownSchema = new mongoose.Schema({
   name: { type: String, required: true },
   location: { type: locationSchema, required: true },
+  rate: { type: Number, required: true },
 });
 
 const Godown = mongoose.model("Godown", godownSchema);

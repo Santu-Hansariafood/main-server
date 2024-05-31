@@ -49,7 +49,7 @@ const farmerRegisterSchema = mongoose.Schema(
     },
     gstNumber: {
       type: String,
-      required: true,
+      required: false,
     },
     accountNumber: {
       type: String,
@@ -71,25 +71,29 @@ const farmerRegisterSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    profilePhoto: {
+    password: {
       type: String,
       required: true,
+    },
+    profilePhoto: {
+      type: String,
+      required: false,
     },
     gstCardPhoto: {
       type: String,
-      required: true,
+      required: false,
     },
     panCardPhoto: {
       type: String,
-      required: true,
+      required: false,
     },
     adherCardPhoto: {
       type: String,
-      required: true,
+      required: false,
     },
     bankCardPhoto: {
       type: String,
-      required: true,
+      required: false,
     },
   },
   {
