@@ -7,10 +7,17 @@ const locationSchema = new mongoose.Schema({
   state: { type: String, required: true },
 });
 
+const qualityParameterSchema = new mongoose.Schema({
+  parameter: { type: String, required: true },
+  accepted: { type: String, required: true },
+  upto: { type: String, required: true },
+});
+
 const godownSchema = new mongoose.Schema({
   name: { type: String, required: true },
   location: { type: locationSchema, required: true },
   rate: { type: Number, required: true },
+  quality: { type: [qualityParameterSchema], required: true },
 });
 
 const Godown = mongoose.model("Godown", godownSchema);
