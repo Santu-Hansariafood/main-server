@@ -21,6 +21,8 @@ const Quality = require("./models/qualityModel");
 const FarmerOrder = require("./models/farmerOrderModel");
 const OrderByFarmer = require("./models/orderModelByFarmer");
 const Godown = require("./models/godownModel");
+const Bill = require("./models/BillModel");
+const Counter = require("./models/Counter");
 const app = express();
 
 app.use(express.json());
@@ -116,18 +118,21 @@ app.post(
   }
 );
 
-app.post('/forgot-password', async (req, res) => {
+app.post("/forgot-password", async (req, res) => {
   const { mobileNumber, aadhaarNumber } = req.body;
 
   try {
-    const farmer = await FarmerRegister.findOne({ mobile: mobileNumber, adherNumber: aadhaarNumber });
+    const farmer = await FarmerRegister.findOne({
+      mobile: mobileNumber,
+      adherNumber: aadhaarNumber,
+    });
     if (farmer) {
       res.json({ password: farmer.password });
     } else {
-      res.status(404).send('Farmer not found');
+      res.status(404).send("Farmer not found");
     }
   } catch (error) {
-    res.status(500).send('Server error');
+    res.status(500).send("Server error");
   }
 });
 
@@ -254,6 +259,41 @@ app.delete("/registerFarmer/:id", async (req, res) => {
 
     // If the farmer is found and deleted successfully, return a success message
     res.status(200).json({ message: "Farmer deleted successfully" });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.get("/registerFarmer-purchasebill/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const farmer = await FarmerRegister.findById(id);
+
+    if (!farmer) {
+      return res.status(404).json({ message: "Farmer not found" });
+    }
+
+    res.status(200).json({
+      _id: farmer._id,
+      name: farmer.name,
+      fatherName: farmer.fatherName,
+      mobile: farmer.mobile,
+      email: farmer.email,
+      state: farmer.state,
+      district: farmer.district,
+      policeStation: farmer.policeStation,
+      village: farmer.village,
+      pinCode: farmer.pinCode,
+      adherNumber: farmer.adherNumber,
+      panNumber: farmer.panNumber,
+      gstNumber: farmer.gstNumber,
+      accountNumber: farmer.accountNumber,
+      ifscNumber: farmer.ifscNumber,
+      branchName: farmer.branchName,
+      accountHolderName: farmer.accountHolderName,
+      bankName: farmer.bankName,
+    });
   } catch (error) {
     console.error("Error:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -389,6 +429,22 @@ app.get("/registerFarmer/:id", async (req, res) => {
   }
 });
 
+app.get("/checkMobileNumber/:mobile", async (req, res) => {
+  try {
+    const { mobile } = req.params;
+    const farmer = await FarmerRegister.findOne({ mobile });
+
+    if (farmer) {
+      return res.status(200).json({ exists: true, farmerId: farmer._id });
+    } else {
+      return res.status(200).json({ exists: false });
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 app.post("/employeeRegister", async (req, res) => {
   const { mobile, password } = req.body;
 
@@ -408,32 +464,33 @@ app.post("/employeeRegister", async (req, res) => {
     });
   }
 });
-// app.post("/employeeRegister", async (req, res) => {
-//   const { firstname, lastname, mobile, email, role, password, confirmPassword } = req.body;
 
-//   if (password !== confirmPassword) {
-//     return res.json({ success: false, message: "Passwords do not match" });
-//   }
+app.post("/empRegister", async (req, res) => {
+  const { firstname, lastname, mobile, email, role, password, confirmPassword } = req.body;
 
-//   try {
-//     const newEmployee = new EmployeeRegister({
-//       firstname,
-//       lastname,
-//       mobile,
-//       email,
-//       role,
-//       password,
-//       confirmPassword,
-//     });
+  if (password !== confirmPassword) {
+    return res.json({ success: false, message: "Passwords do not match" });
+  }
 
-//     await newEmployee.save();
+  try {
+    const newEmployee = new EmployeeRegister({
+      firstname,
+      lastname,
+      mobile,
+      email,
+      role,
+      password,
+      confirmPassword,
+    });
 
-//     res.json({ success: true, message: "Employee registered successfully" });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ success: false, message: "Server error" });
-//   }
-// });
+    await newEmployee.save();
+
+    res.json({ success: true, message: "Employee registered successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
 
 // GET employeeRegister
 app.get("/employeeRegister", async (req, res) => {
@@ -1166,12 +1223,10 @@ app.post("/farmerProducts", async (req, res) => {
           return res.status(200).json(updatedProduct);
         } else {
           // Handle case where the document doesn't exist for some reason
-          return res
-            .status(400)
-            .json({
-              message:
-                "Unable to find existing document for the provided farmerId.",
-            });
+          return res.status(400).json({
+            message:
+              "Unable to find existing document for the provided farmerId.",
+          });
         }
       } catch (updateErr) {
         return res.status(400).json({ message: updateErr.message });
@@ -1705,6 +1760,94 @@ app.delete("/godown/:id", async (req, res) => {
     res.status(200).json({ message: "Godown deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+});
+
+app.get("/bill/:id", async (req, res) => {
+  try {
+    const bill = await Bill.findById(req.params.id);
+    res.json(bill);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get("/bill", async (req, res) => {
+  try {
+    const bills = await Bill.find();
+    res.json(bills);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/bill", async (req, res) => {
+  try {
+    const counter = await Counter.findOneAndUpdate(
+      { id: "billNumber" },
+      { $inc: { seq: 1 } },
+      { new: true, upsert: true }
+    );
+
+    const billData = {
+      ...req.body,
+      billNumber: counter.seq,
+      orderId: `HANS/MAIZE/${counter.seq.toString().padStart(4, "0")}`,
+    };
+
+    const bill = new Bill(billData);
+
+    await bill.save();
+
+    res.status(201).json(bill);
+  } catch (error) {
+    console.error("Error creating bill:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+
+
+// app.post("/bill", async (req, res) => {
+//   try {
+//     const counter = await Counter.findOneAndUpdate(
+//       { id: "billNumber" },
+//       { $inc: { seq: 1 } },
+//       { new: true, upsert: true }
+//     );
+
+//     const billData = {
+//       ...req.body,
+//       billNumber: counter.seq,
+//       orderId: `HANS/MAIZE/${counter.seq.toString().padStart(4, "0")}`,
+//     };
+
+//     const bill = new Bill(billData);
+//     await bill.save();
+//     res.status(201).json(bill);
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// });
+
+app.put("/bill/:id", async (req, res) => {
+  try {
+    const updatedBill = await Bill.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+    res.json(updatedBill);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete("/bill/:id", async (req, res) => {
+  try {
+    await Bill.findByIdAndDelete(req.params.id);
+    res.status(204).end();
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
