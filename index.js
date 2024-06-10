@@ -1781,33 +1781,80 @@ app.get("/bill", async (req, res) => {
   }
 });
 
-app.post("/bill", async (req, res) => {
+// app.post("/bill", async (req, res) => {
+//   try {
+//     const counter = await Counter.findOneAndUpdate(
+//       { id: "billNumber" },
+//       { $inc: { seq: 1 } },
+//       { new: true, upsert: true }
+//     );
+
+//     const billData = {
+//       ...req.body,
+//       billNumber: counter.seq,
+//       orderId: `HANS/MAIZE/${counter.seq.toString().padStart(4, "0")}`,
+//     };
+
+//     const bill = new Bill(billData);
+
+//     await bill.save();
+
+//     res.status(201).json(bill);
+//   } catch (error) {
+//     console.error("Error creating bill:", error);
+//     res.status(500).json({ error: error.message });
+//   }
+// });
+
+
+// app.post('/bill', async (req, res) => {
+//   try {
+//     const newBill = new Bill(req.body);
+//     await newBill.save();
+//     res.status(200).json(newBill);
+//   } catch (error) {
+//     res.status(500).json({ error: 'Failed to create bill' });
+//   }
+// });
+
+app.post('/bill', async (req, res) => {
+  const { farmerId, ...billData } = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(farmerId)) {
+    return res.status(400).json({ error: 'Invalid farmerId format' });
+  }
+
+  const newBill = new Bill({ farmerId: new mongoose.Types.ObjectId(farmerId), ...billData });
+
   try {
-    const counter = await Counter.findOneAndUpdate(
-      { id: "billNumber" },
-      { $inc: { seq: 1 } },
-      { new: true, upsert: true }
-    );
-
-    const billData = {
-      ...req.body,
-      billNumber: counter.seq,
-      orderId: `HANS/MAIZE/${counter.seq.toString().padStart(4, "0")}`,
-    };
-
-    const bill = new Bill(billData);
-
-    await bill.save();
-
-    res.status(201).json(bill);
+    await newBill.save();
+    res.status(200).json(newBill);
   } catch (error) {
-    console.error("Error creating bill:", error);
-    res.status(500).json({ error: error.message });
+    console.error('Error saving bill:', error);
+    res.status(500).json({ error: 'Failed to create bill' });
   }
 });
 
+// app.post('/bill', async (req, res) => {
+//   const { farmerId, ...billData } = req.body;
+  
+//   // Validate farmerId
+//   if (!mongoose.Types.ObjectId.isValid(farmerId)) {
+//     return res.status(400).json({ error: 'Invalid farmerId format' });
+//   }
 
+//   // Create new Bill instance
+//   const newBill = new Bill({ farmerId: mongoose.Types.ObjectId(farmerId), ...billData });
 
+//   try {
+//     // Save new Bill to the database
+//     await newBill.save();
+//     res.status(200).json(newBill);
+//   } catch (error) {
+//     console.error('Error saving bill:', error);
+//     res.status(500).json({ error: 'Failed to create bill' });
+//   }
+// });
 
 // app.post("/bill", async (req, res) => {
 //   try {
