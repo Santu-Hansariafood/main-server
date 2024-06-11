@@ -428,13 +428,18 @@ app.get("/registerFarmer/:id", async (req, res) => {
   }
 });
 
-app.get("/checkMobileNumber/:mobile", async (req, res) => {
+app.get("/checkMobileNumber/:query", async (req, res) => {
   try {
-    const { mobile } = req.params;
-    const farmer = await FarmerRegister.findOne({ mobile });
+    const { query } = req.params;
+    const farmer = await FarmerRegister.findOne({
+      $or: [
+        { mobile: query },
+        { name: { $regex: new RegExp(query, "i") } }
+      ]
+    });
 
     if (farmer) {
-      return res.status(200).json({ exists: true, farmerId: farmer._id });
+      return res.status(200).json({ exists: true, farmerId: farmer._id, name: farmer.name });
     } else {
       return res.status(200).json({ exists: false });
     }
