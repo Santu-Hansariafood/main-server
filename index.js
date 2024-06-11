@@ -1180,7 +1180,6 @@ app.get("/farmerProducts/:id", getFarmerProduct, (req, res) => {
   res.json(res.farmerProduct);
 });
 
-
 app.post("/farmerProducts", async (req, res) => {
   try {
     // Check if farmerId is provided
@@ -1771,6 +1770,26 @@ app.get("/bill", async (req, res) => {
   }
 });
 
+// app.post("/bill", async (req, res) => {
+//   const { farmerId, ...billData } = req.body;
+
+//   if (!mongoose.Types.ObjectId.isValid(farmerId)) {
+//     return res.status(400).json({ error: "Invalid farmerId format" });
+//   }
+
+//   const newBill = new Bill({
+//     farmerId: new mongoose.Types.ObjectId(farmerId),
+//     ...billData,
+//   });
+
+//   try {
+//     await newBill.save();
+//     res.status(200).json(newBill);
+//   } catch (error) {
+//     console.error("Error saving bill:", error);
+//     res.status(500).json({ error: "Failed to create bill" });
+//   }
+// });
 
 app.post("/bill", async (req, res) => {
   const { farmerId, ...billData } = req.body;
@@ -1779,12 +1798,21 @@ app.post("/bill", async (req, res) => {
     return res.status(400).json({ error: "Invalid farmerId format" });
   }
 
-  const newBill = new Bill({
-    farmerId: new mongoose.Types.ObjectId(farmerId),
-    ...billData,
-  });
-
   try {
+    const counter = await Counter.findOneAndUpdate(
+      { id: "billNumber" },
+      { $inc: { seq: 1 } },
+      { new: true, upsert: true }
+    );
+
+    const formattedBillNumber = `HANS/${counter.seq.toString().padStart(5, '0')}`;
+
+    const newBill = new Bill({
+      billNumber: formattedBillNumber,
+      farmerId: new mongoose.Types.ObjectId(farmerId),
+      ...billData,
+    });
+
     await newBill.save();
     res.status(200).json(newBill);
   } catch (error) {

@@ -19,6 +19,7 @@ const qualityParamsSchema = new mongoose.Schema({
 });
 
 const billSchema = new mongoose.Schema({
+  billNumber: { type: String, unique: true },
   lorryNumber: { type: String, required: true },
   qualityParams: [qualityParamsSchema],
   totalBag: { type: Number, required: true },
