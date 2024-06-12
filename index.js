@@ -23,6 +23,7 @@ const OrderByFarmer = require("./models/orderModelByFarmer");
 const Godown = require("./models/godownModel");
 const Bill = require("./models/BillModel");
 const Counter = require("./models/Counter");
+const Company = require("./models/companyModel");
 const app = express();
 
 app.use(express.json());
@@ -383,14 +384,13 @@ app.get("/checkMobileNumber/:query", async (req, res) => {
   try {
     const { query } = req.params;
     const farmer = await FarmerRegister.findOne({
-      $or: [
-        { mobile: query },
-        { name: { $regex: new RegExp(query, "i") } }
-      ]
+      $or: [{ mobile: query }, { name: { $regex: new RegExp(query, "i") } }],
     });
 
     if (farmer) {
-      return res.status(200).json({ exists: true, farmerId: farmer._id, name: farmer.name });
+      return res
+        .status(200)
+        .json({ exists: true, farmerId: farmer._id, name: farmer.name });
     } else {
       return res.status(200).json({ exists: false });
     }
@@ -1726,26 +1726,6 @@ app.get("/bill", async (req, res) => {
   }
 });
 
-// app.post("/bill", async (req, res) => {
-//   const { farmerId, ...billData } = req.body;
-
-//   if (!mongoose.Types.ObjectId.isValid(farmerId)) {
-//     return res.status(400).json({ error: "Invalid farmerId format" });
-//   }
-
-//   const newBill = new Bill({
-//     farmerId: new mongoose.Types.ObjectId(farmerId),
-//     ...billData,
-//   });
-
-//   try {
-//     await newBill.save();
-//     res.status(200).json(newBill);
-//   } catch (error) {
-//     console.error("Error saving bill:", error);
-//     res.status(500).json({ error: "Failed to create bill" });
-//   }
-// });
 
 app.post("/bill", async (req, res) => {
   const { farmerId, ...billData } = req.body;
@@ -1761,7 +1741,9 @@ app.post("/bill", async (req, res) => {
       { new: true, upsert: true }
     );
 
-    const formattedBillNumber = `HANS/${counter.seq.toString().padStart(5, '0')}`;
+    const formattedBillNumber = `HANS/${counter.seq
+      .toString()
+      .padStart(5, "0")}`;
 
     const newBill = new Bill({
       billNumber: formattedBillNumber,
@@ -1796,6 +1778,67 @@ app.delete("/bill/:id", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// Create a new company
+app.post('/companies', async (req, res) => {
+  try {
+    const { companyName, location, billingAddress, gstNo } = req.body;
+    const newCompany = new Company({ companyName, location, billingAddress, gstNo });
+    await newCompany.save();
+    res.status(201).json(newCompany);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Get all companies
+app.get('/companies', async (req, res) => {
+  try {
+    const companies = await Company.find();
+    res.status(200).json(companies);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Get a company by ID
+app.get('/companies/:id', async (req, res) => {
+  try {
+    const company = await Company.findById(req.params.id);
+    if (!company) return res.status(404).json({ message: 'Company not found' });
+    res.status(200).json(company);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Update a company by ID
+app.put('/companies/:id', async (req, res) => {
+  try {
+    const { companyName, location, billingAddress, gstNo } = req.body;
+    const company = await Company.findByIdAndUpdate(
+      req.params.id,
+      { companyName, location, billingAddress, gstNo },
+      { new: true, runValidators: true }
+    );
+    if (!company) return res.status(404).json({ message: 'Company not found' });
+    res.status(200).json(company);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Delete a company by ID
+app.delete('/companies/:id', async (req, res) => {
+  try {
+    const company = await Company.findByIdAndDelete(req.params.id);
+    if (!company) return res.status(404).json({ message: 'Company not found' });
+    res.status(200).json({ message: 'Company deleted' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 
 mongoose.set("strictQuery", false);
 mongoose
