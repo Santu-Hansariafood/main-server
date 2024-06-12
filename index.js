@@ -136,75 +136,26 @@ app.post("/forgot-password", async (req, res) => {
   }
 });
 
-//   "/registerFarmer",
-//   upload.fields([
-//     { name: "profilePhoto", maxCount: 1 },
-//     { name: "adherCardPhoto", maxCount: 1 },
-//     { name: "panCardPhoto", maxCount: 1 },
-//     { name: "bankCardPhoto", maxCount: 1 },
-//     { name: "gstCardPhoto", maxCount: 1 },
-//   ]),
-//   async (req, res) => {
-//     try {
-//       const {
-//         name,
-//         fatherName,
-//         mobile,
-//         email,
-//         state,
-//         district,
-//         policeStation,
-//         village,
-//         pinCode,
-//         adherNumber,
-//         panNumber,
-//         gstNumber,
-//         accountNumber,
-//         ifscNumber,
-//         branchName,
-//         accountHolderName,
-//         bankName,
-//       } = req.body;
+app.post("/login", async (req, res) => {
+  const { mobileNumber, password } = req.body;
 
-//       const profilePhotoPath = req.files["profilePhoto"][0].path;
-//       const adherCardPhotoPath = req.files["adherCardPhoto"][0].path;
-//       const panCardPhotoPath = req.files["panCardPhoto"][0].path;
-//       const bankCardPhotoPath = req.files["bankCardPhoto"][0].path;
-//       const gstCardPhotoPath = req.files["gstCardPhoto"][0].path;
+  try {
+    const farmer = await FarmerRegister.findOne({ mobile: mobileNumber });
 
-//       const newFarmer = await FarmerRegister.create({
-//         name,
-//         fatherName,
-//         mobile,
-//         email,
-//         state,
-//         district,
-//         policeStation,
-//         village,
-//         pinCode,
-//         adherNumber,
-//         panNumber,
-//         gstNumber,
-//         accountNumber,
-//         ifscNumber,
-//         branchName,
-//         accountHolderName,
-//         bankName,
-//         profilePhoto: profilePhotoPath,
-//         adherCardPhoto: adherCardPhotoPath,
-//         panCardPhoto: panCardPhotoPath,
-//         bankCardPhoto: bankCardPhotoPath,
-//         gstCardPhoto: gstCardPhotoPath,
-//       });
+    if (!farmer) {
+      return res.status(404).json({ message: "Farmer not found" });
+    }
 
-//       res
-//         .status(201)
-//         .json({ msg: "New farmer registered successfully.", data: newFarmer });
-//     } catch (error) {
-//       res.status(500).json({ message: error.message });
-//     }
-//   }
-// );
+    if (farmer.password !== password) {
+      return res.status(401).json({ message: "Invalid password" });
+    }
+
+    res.status(200).json({ success: true, farmer });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 
 app.get("/registerFarmer", async (req, res) => {
   try {
