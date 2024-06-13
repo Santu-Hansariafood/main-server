@@ -498,24 +498,26 @@ app.get("/employeeRegister/mobile/:mobile", async (req, res) => {
 
 //update the employeeRegister in to the Buyercompany
 
-app.put("/employeeRegister/:id", async (req, res) => {
+app.put('/employeeRegister/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const employeeRegister = await EmployeeRegister.findByIdAndUpdate(
+    const updatedEmployee = await EmployeeRegister.findByIdAndUpdate(
       id,
-      req.body
+      req.body,
+      { new: true }
     );
-    if (!employeeRegister) {
-      return res
-        .status(404)
-        .json({ message: `cannot find any Register with ID ${id}` });
+
+    if (!updatedEmployee) {
+      return res.status(404).json({ message: `Cannot find any employee with ID ${id}` });
     }
-    const updatedemployeeRegister = await EmployeeRegister.findById(id);
-    res.status(200).json(updatedemployeeRegister);
+
+    res.status(200).json(updatedEmployee);
   } catch (error) {
+    console.error('Error updating employee:', error);
     res.status(500).json({ message: error.message });
   }
 });
+
 
 // Delete a employeeRegister
 
@@ -543,75 +545,58 @@ app.get("/adminRegister", async (req, res) => {
   }
 });
 
-// Buyer api
 
-app.get("/buyer", async (req, res) => {
+// Get all buyers
+app.get('/buyer', async (req, res) => {
   try {
     const buyers = await Buyer.find();
-    res.json(buyers);
+    res.status(200).json(buyers);
   } catch (error) {
-    console.error("Error fetching buyers:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({ message: error.message });
   }
 });
 
-// GET buyer by ID
-app.get("/buyer/:id", async (req, res) => {
+// Get a single buyer by ID
+app.get('/buyer/:id', async (req, res) => {
   try {
     const buyer = await Buyer.findById(req.params.id);
-    if (!buyer) {
-      return res.status(404).json({ message: "Buyer not found" });
-    }
-    res.json(buyer);
+    if (!buyer) return res.status(404).json({ message: 'Buyer not found' });
+    res.status(200).json(buyer);
   } catch (error) {
-    console.error("Error fetching buyer by ID:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({ message: error.message });
   }
 });
 
-app.post("/buyer", async (req, res) => {
+// Create a new buyer
+app.post('/buyer', async (req, res) => {
   try {
-    const buyer = await Buyer.create(req.body);
-    res.status(201).json(buyer);
+    const buyer = new Buyer(req.body);
+    await buyer.save();
+    res.status(201).json({ message: 'Buyer created successfully', buyer });
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json({
-      message: error.message,
-    });
+    res.status(400).json({ message: error.message });
   }
 });
 
-// PUT route to update buyer by ID
-app.put("/buyer/:id", async (req, res) => {
+// Update a buyer by ID
+app.put('/buyer/:id', async (req, res) => {
   try {
-    const { id } = req.params;
-    const buyer = await Buyer.findByIdAndUpdate(id, req.body, { new: true });
-
-    if (!buyer) {
-      return res.status(404).json({ message: "Buyer not found" });
-    }
-
-    res.json(buyer);
+    const updatedBuyer = await Buyer.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!updatedBuyer) return res.status(404).json({ message: 'Buyer not found' });
+    res.status(200).json({ message: 'Buyer updated successfully', updatedBuyer });
   } catch (error) {
-    console.error("Error updating buyer:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(400).json({ message: error.message });
   }
 });
 
-// DELETE route to delete buyer by ID
-app.delete("/buyer/:id", async (req, res) => {
+// Delete a buyer by ID
+app.delete('/buyer/:id', async (req, res) => {
   try {
-    const { id } = req.params;
-    const buyer = await Buyer.findByIdAndDelete(id);
-
-    if (!buyer) {
-      return res.status(404).json({ message: "Buyer not found" });
-    }
-
-    res.json({ message: "Buyer deleted successfully" });
+    const deletedBuyer = await Buyer.findByIdAndDelete(req.params.id);
+    if (!deletedBuyer) return res.status(404).json({ message: 'Buyer not found' });
+    res.status(200).json({ message: 'Buyer deleted successfully' });
   } catch (error) {
-    console.error("Error deleting buyer:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({ message: error.message });
   }
 });
 
