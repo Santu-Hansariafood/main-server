@@ -24,11 +24,19 @@ const Godown = require("./models/godownModel");
 const Bill = require("./models/BillModel");
 const Counter = require("./models/Counter");
 const Company = require("./models/companyModel");
+const Bid = require("./models/bidModel");
+const Consignee = require("./models/consigneeModel")
 const app = express();
 
 app.use(express.json());
 app.use(cors());
 const PORT = process.env.PORT || 3000;
+
+const twilio = require("twilio");
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const client = twilio(accountSid, authToken);
+
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -498,7 +506,7 @@ app.get("/employeeRegister/mobile/:mobile", async (req, res) => {
 
 //update the employeeRegister in to the Buyercompany
 
-app.put('/employeeRegister/:id', async (req, res) => {
+app.put("/employeeRegister/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const updatedEmployee = await EmployeeRegister.findByIdAndUpdate(
@@ -508,16 +516,17 @@ app.put('/employeeRegister/:id', async (req, res) => {
     );
 
     if (!updatedEmployee) {
-      return res.status(404).json({ message: `Cannot find any employee with ID ${id}` });
+      return res
+        .status(404)
+        .json({ message: `Cannot find any employee with ID ${id}` });
     }
 
     res.status(200).json(updatedEmployee);
   } catch (error) {
-    console.error('Error updating employee:', error);
+    console.error("Error updating employee:", error);
     res.status(500).json({ message: error.message });
   }
 });
-
 
 // Delete a employeeRegister
 
@@ -545,9 +554,8 @@ app.get("/adminRegister", async (req, res) => {
   }
 });
 
-
 // Get all buyers
-app.get('/buyer', async (req, res) => {
+app.get("/buyer", async (req, res) => {
   try {
     const buyers = await Buyer.find();
     res.status(200).json(buyers);
@@ -557,10 +565,10 @@ app.get('/buyer', async (req, res) => {
 });
 
 // Get a single buyer by ID
-app.get('/buyer/:id', async (req, res) => {
+app.get("/buyer/:id", async (req, res) => {
   try {
     const buyer = await Buyer.findById(req.params.id);
-    if (!buyer) return res.status(404).json({ message: 'Buyer not found' });
+    if (!buyer) return res.status(404).json({ message: "Buyer not found" });
     res.status(200).json(buyer);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -568,33 +576,41 @@ app.get('/buyer/:id', async (req, res) => {
 });
 
 // Create a new buyer
-app.post('/buyer', async (req, res) => {
+app.post("/buyer", async (req, res) => {
   try {
     const buyer = new Buyer(req.body);
     await buyer.save();
-    res.status(201).json({ message: 'Buyer created successfully', buyer });
+    res.status(201).json({ message: "Buyer created successfully", buyer });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 });
 
 // Update a buyer by ID
-app.put('/buyer/:id', async (req, res) => {
+app.put("/buyer/:id", async (req, res) => {
   try {
-    const updatedBuyer = await Buyer.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
-    if (!updatedBuyer) return res.status(404).json({ message: 'Buyer not found' });
-    res.status(200).json({ message: 'Buyer updated successfully', updatedBuyer });
+    const updatedBuyer = await Buyer.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+    if (!updatedBuyer)
+      return res.status(404).json({ message: "Buyer not found" });
+    res
+      .status(200)
+      .json({ message: "Buyer updated successfully", updatedBuyer });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 });
 
 // Delete a buyer by ID
-app.delete('/buyer/:id', async (req, res) => {
+app.delete("/buyer/:id", async (req, res) => {
   try {
     const deletedBuyer = await Buyer.findByIdAndDelete(req.params.id);
-    if (!deletedBuyer) return res.status(404).json({ message: 'Buyer not found' });
-    res.status(200).json({ message: 'Buyer deleted successfully' });
+    if (!deletedBuyer)
+      return res.status(404).json({ message: "Buyer not found" });
+    res.status(200).json({ message: "Buyer deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -1711,7 +1727,6 @@ app.get("/bill", async (req, res) => {
   }
 });
 
-
 app.post("/bill", async (req, res) => {
   const { farmerId, ...billData } = req.body;
 
@@ -1765,10 +1780,15 @@ app.delete("/bill/:id", async (req, res) => {
 });
 
 // Create a new company
-app.post('/companies', async (req, res) => {
+app.post("/companies", async (req, res) => {
   try {
     const { companyName, location, billingAddress, gstNo } = req.body;
-    const newCompany = new Company({ companyName, location, billingAddress, gstNo });
+    const newCompany = new Company({
+      companyName,
+      location,
+      billingAddress,
+      gstNo,
+    });
     await newCompany.save();
     res.status(201).json(newCompany);
   } catch (err) {
@@ -1777,7 +1797,7 @@ app.post('/companies', async (req, res) => {
 });
 
 // Get all companies
-app.get('/companies', async (req, res) => {
+app.get("/companies", async (req, res) => {
   try {
     const companies = await Company.find();
     res.status(200).json(companies);
@@ -1787,10 +1807,10 @@ app.get('/companies', async (req, res) => {
 });
 
 // Get a company by ID
-app.get('/companies/:id', async (req, res) => {
+app.get("/companies/:id", async (req, res) => {
   try {
     const company = await Company.findById(req.params.id);
-    if (!company) return res.status(404).json({ message: 'Company not found' });
+    if (!company) return res.status(404).json({ message: "Company not found" });
     res.status(200).json(company);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -1798,7 +1818,7 @@ app.get('/companies/:id', async (req, res) => {
 });
 
 // Update a company by ID
-app.put('/companies/:id', async (req, res) => {
+app.put("/companies/:id", async (req, res) => {
   try {
     const { companyName, location, billingAddress, gstNo } = req.body;
     const company = await Company.findByIdAndUpdate(
@@ -1806,7 +1826,7 @@ app.put('/companies/:id', async (req, res) => {
       { companyName, location, billingAddress, gstNo },
       { new: true, runValidators: true }
     );
-    if (!company) return res.status(404).json({ message: 'Company not found' });
+    if (!company) return res.status(404).json({ message: "Company not found" });
     res.status(200).json(company);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -1814,13 +1834,196 @@ app.put('/companies/:id', async (req, res) => {
 });
 
 // Delete a company by ID
-app.delete('/companies/:id', async (req, res) => {
+app.delete("/companies/:id", async (req, res) => {
   try {
     const company = await Company.findByIdAndDelete(req.params.id);
-    if (!company) return res.status(404).json({ message: 'Company not found' });
-    res.status(200).json({ message: 'Company deleted' });
+    if (!company) return res.status(404).json({ message: "Company not found" });
+    res.status(200).json({ message: "Company deleted" });
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+});
+
+// GET all consignees
+app.get('/consignee', async (req, res) => {
+  try {
+    const consignees = await Consignee.find();
+    res.json(consignees);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// GET a specific consignee by ID
+app.get('/consignee/:id', getConsignee, (req, res) => {
+  res.json(res.consignee);
+});
+
+// POST a new consignee
+app.post('/consignee', async (req, res) => {
+  try {
+    const consignees = req.body;
+
+    if (!Array.isArray(consignees) || consignees.length === 0) {
+      return res.status(400).send('Invalid consignee data.');
+    }
+
+    const savedConsignees = [];
+    for (const consignee of consignees) {
+      if (!consignee.companyName || !consignee.name || !consignee.mobile) {
+        return res.status(400).send('Required fields are missing.');
+      }
+
+      const newConsignee = new Consignee(consignee);
+      const savedConsignee = await newConsignee.save();
+      savedConsignees.push(savedConsignee);
+    }
+
+    res.status(200).send(savedConsignees);
+  } catch (error) {
+    console.error('Error saving consignee details:', error);
+    res.status(500).send('Server error.');
+  }
+});
+
+
+// PUT (update) an existing consignee
+app.put('/consignee/:id', getConsignee, async (req, res) => {
+  if (req.body.companyName != null) {
+    res.consignee.companyName = req.body.companyName;
+  }
+  if (req.body.name != null) {
+    res.consignee.name = req.body.name;
+  }
+  if (req.body.mobile != null) {
+    res.consignee.mobile = req.body.mobile;
+  }
+  if (req.body.email != null) {
+    res.consignee.email = req.body.email;
+  }
+  if (req.body.address != null) {
+    res.consignee.address = req.body.address;
+  }
+  if (req.body.gstNo != null) {
+    res.consignee.gstNo = req.body.gstNo;
+  }
+  if (req.body.panNo != null) {
+    res.consignee.panNo = req.body.panNo;
+  }
+  if (req.body.state != null) {
+    res.consignee.state = req.body.state;
+  }
+  if (req.body.location != null) {
+    res.consignee.location = req.body.location;
+  }
+
+  try {
+    const updatedConsignee = await res.consignee.save();
+    res.json(updatedConsignee);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// DELETE a consignee
+app.delete('/consignee/:id', getConsignee, async (req, res) => {
+  try {
+    await res.consignee.remove();
+    res.json({ message: 'Deleted consignee' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Middleware to get consignee by ID
+async function getConsignee(req, res, next) {
+  let consignee;
+  try {
+    consignee = await Consignee.findById(req.params.id);
+    if (consignee == null) {
+      return res.status(404).json({ message: 'Cannot find consignee' });
+    }
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+
+  res.consignee = consignee;
+  next();
+}
+
+app.get('/bids', async (req, res) => {
+  try {
+    const bids = await Bid.find();
+    res.status(200).send(bids);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+// GET a bid by ID
+app.get('/bids/:id', async (req, res) => {
+  try {
+    const bid = await Bid.findById(req.params.id);
+    if (!bid) {
+      return res.status(404).send({ message: 'Bid not found' });
+    }
+    res.status(200).send(bid);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+// POST a new bid
+app.post('/bids', async (req, res) => {
+  try {
+    const bid = new Bid(req.body);
+    await bid.save();
+
+    const messageBody = `
+      You have a new bid.
+      Bid ID: ${bid._id}.
+      Start at: ${bid.startTime}.
+      Close at: ${bid.endTime}.
+      Buyer: ${bid.buyer}.
+      Loc: ${bid.buyerLocation}.
+      Prod: ${bid.product}.
+      Rate: ${bid.rateForBid}.
+      QTY: ${bid.quantity} ${bid.unit}.
+      - Team Hansaria
+    `;
+
+    client.messages
+      .create({
+        body: messageBody,
+        from: process.env.TWILIO_PHONE_NUMBER,
+        to: `+91${bid.buyerPhoneNumber}`,
+      })
+      .then((message) => console.log("Message SID:", message.sid))
+      .catch((error) => {
+        if (error.code === 21608) {
+          console.error("Error: Unverified number. Please verify the number or upgrade your Twilio account.");
+        } else {
+          console.error("Error sending message:", error);
+        }
+        res.status(500).send({ error: 'Error sending SMS' });
+      });
+
+    res.status(201).send(bid);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
+
+// PUT to update an existing bid
+app.put('/bids/:id', async (req, res) => {
+  try {
+    const bid = await Bid.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!bid) {
+      return res.status(404).send({ message: 'Bid not found' });
+    }
+    res.status(200).send(bid);
+  } catch (error) {
+    res.status(400).send(error);
   }
 });
 

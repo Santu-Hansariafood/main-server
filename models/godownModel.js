@@ -18,6 +18,7 @@ const godownSchema = new mongoose.Schema({
   location: { type: locationSchema, required: true },
   rate: { type: Number, required: true },
   quality: { type: [qualityParameterSchema], required: true },
+  totalCapacity: { type: Number, required: true },
 });
 
 const Godown = mongoose.model("Godown", godownSchema);
