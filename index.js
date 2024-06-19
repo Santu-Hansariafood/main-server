@@ -1,5 +1,6 @@
 require("dotenv").config();
 const express = require("express");
+const cors = require("cors");
 const connectDB = require("./config/db");
 const farmerRoutes = require("./routes/api/farmers");
 const employeeRoutes = require("./routes/api/employees");
@@ -24,6 +25,7 @@ const orderByFarmerRoutes = require("./routes/api/orderByFarmer");
 const errorHandler = require("./middleware/errorMiddleware");
 
 const app = express();
+app.use(cors());
 const PORT = process.env.PORT || 3000;
 
 connectDB();
