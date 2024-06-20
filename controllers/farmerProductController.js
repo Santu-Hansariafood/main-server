@@ -1,6 +1,7 @@
+// controllers/FarmerProductController.js
+
 const FarmerProduct = require('../models/farmerProductModel');
 
-// Middleware to get a farmer product by ID
 const getFarmerProduct = async (req, res, next) => {
   try {
     const farmerProduct = await FarmerProduct.findById(req.params.id);
@@ -14,7 +15,6 @@ const getFarmerProduct = async (req, res, next) => {
   }
 };
 
-// GET all farmer products
 const getAllFarmerProducts = async (req, res) => {
   try {
     const farmerProducts = await FarmerProduct.find();
@@ -24,12 +24,10 @@ const getAllFarmerProducts = async (req, res) => {
   }
 };
 
-// GET a specific farmer product by ID
 const getFarmerProductById = (req, res) => {
   res.json(res.farmerProduct);
 };
 
-// POST a new farmer product
 const createFarmerProduct = async (req, res) => {
   try {
     if (!req.body.farmerId) {
@@ -56,7 +54,9 @@ const createFarmerProduct = async (req, res) => {
           const updatedProduct = await existingProduct.save();
           return res.status(200).json(updatedProduct);
         } else {
-          return res.status(400).json({ message: "Unable to find existing document for the provided farmerId." });
+          return res.status(400).json({
+            message: "Unable to find existing document for the provided farmerId.",
+          });
         }
       } catch (updateErr) {
         return res.status(400).json({ message: updateErr.message });
@@ -67,8 +67,7 @@ const createFarmerProduct = async (req, res) => {
   }
 };
 
-// PUT update a farmer product
-const updateFarmerProduct = async (req, res) => {
+const updateFarmerProductById = async (req, res) => {
   if (req.body.farmerName != null) {
     res.farmerProduct.farmerName = req.body.farmerName;
   }
@@ -84,8 +83,7 @@ const updateFarmerProduct = async (req, res) => {
   }
 };
 
-// DELETE a farmer product
-const deleteFarmerProduct = async (req, res) => {
+const deleteFarmerProductById = async (req, res) => {
   try {
     await res.farmerProduct.remove();
     res.json({ message: "Deleted farmer product" });
@@ -99,6 +97,6 @@ module.exports = {
   getAllFarmerProducts,
   getFarmerProductById,
   createFarmerProduct,
-  updateFarmerProduct,
-  deleteFarmerProduct
+  updateFarmerProductById,
+  deleteFarmerProductById,
 };

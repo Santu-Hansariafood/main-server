@@ -1,15 +1,25 @@
+// routes/api/farmerProducts.js
+
 const express = require('express');
 const router = express.Router();
 const FarmerProductController = require('../../controllers/FarmerProductController');
 
+// Middleware for fetching a farmer product by ID
+router.param('id', FarmerProductController.getFarmerProduct);
+
+// GET all farmer products
 router.get('/', FarmerProductController.getAllFarmerProducts);
 
-router.get('/:id', FarmerProductController.getFarmerProduct, FarmerProductController.getFarmerProductById);
+// GET a specific farmer product by ID
+router.get('/:id', FarmerProductController.getFarmerProductById);
 
+// POST a new farmer product
 router.post('/', FarmerProductController.createFarmerProduct);
 
-router.put('/:id', FarmerProductController.getFarmerProduct, FarmerProductController.updateFarmerProduct);
+// PUT update a farmer product by ID
+router.put('/:id', FarmerProductController.updateFarmerProductById);
 
-router.delete('/:id', FarmerProductController.getFarmerProduct, FarmerProductController.deleteFarmerProduct);
+// DELETE a farmer product by ID
+router.delete('/:id', FarmerProductController.deleteFarmerProductById);
 
 module.exports = router;
