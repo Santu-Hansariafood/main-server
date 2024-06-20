@@ -48,7 +48,7 @@ app.use("/api/brokenRiceQualityParameters", brokenRiceQualityParametersRouter);
 app.use("/api/maizeQualityParameters", maizeQualityParametersRoutes);
 app.use("/api/soyaQualityParameters", soyaQualityParametersRoutes);
 app.use("/api/participateOnBid", participateOnBidRoutes);
-// app.use("/api/farmerProducts", farmerProductsRoutes);
+app.use("/api/farmerProducts", farmerProductsRoutes);
 app.use("/api/pickupLocations", pickupLocationsRoutes);
 app.use("/api/orders", ordersRoutes);
 app.use("/api/farmerOrders", farmerOrdersRoutes);

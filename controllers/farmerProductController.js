@@ -1,5 +1,3 @@
-// controllers/FarmerProductController.js
-
 const FarmerProduct = require('../models/farmerProductModel');
 
 const getFarmerProduct = async (req, res, next) => {
