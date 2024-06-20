@@ -1,4 +1,4 @@
-const Buyer = require('../models/buyerModel');
+const Buyer = require("../models/buyerModel");
 
 exports.getAllBuyers = async (req, res) => {
   try {

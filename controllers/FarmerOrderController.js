@@ -1,6 +1,5 @@
 const FarmerOrder = require('../models/farmerOrderModel');
 
-// GET all farmer orders
 const getAllFarmerOrders = async (req, res) => {
   try {
     const farmers = await FarmerOrder.find();
@@ -10,12 +9,10 @@ const getAllFarmerOrders = async (req, res) => {
   }
 };
 
-// GET a farmer order by ID
 const getFarmerOrderById = async (req, res) => {
   res.json(res.farmer);
 };
 
-// POST a new farmer order
 const createFarmerOrder = async (req, res) => {
   const farmer = new FarmerOrder({
     farmerName: req.body.farmerName,
@@ -35,7 +32,6 @@ const createFarmerOrder = async (req, res) => {
   }
 };
 
-// PUT update a farmer order by ID
 const updateFarmerOrder = async (req, res) => {
   if (req.body.farmerName != null) {
     res.farmer.farmerName = req.body.farmerName;
@@ -66,7 +62,6 @@ const updateFarmerOrder = async (req, res) => {
   }
 };
 
-// DELETE a farmer order by ID
 const deleteFarmerOrder = async (req, res) => {
   try {
     await res.farmer.remove();
@@ -76,7 +71,6 @@ const deleteFarmerOrder = async (req, res) => {
   }
 };
 
-// Middleware function to get a single farmer order by ID
 const getFarmerOrder = async (req, res, next) => {
   let farmer;
   try {

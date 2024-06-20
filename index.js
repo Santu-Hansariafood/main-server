@@ -24,6 +24,8 @@ const qualitiesRoutes = require("./routes/api/qualities");
 const orderByFarmerRoutes = require("./routes/api/orderByFarmer");
 const errorHandler = require("./middleware/errorMiddleware");
 
+require('events').EventEmitter.defaultMaxListeners = 15;
+
 const app = express();
 app.use(cors());
 const PORT = process.env.PORT || 3000;
