@@ -32,12 +32,13 @@ router.post(
   farmerController.registerFarmer
 );
 
-router.post('/forgot-password', farmerController.forgotPassword);
+router.post('/forgotPassword', farmerController.forgotPassword);
 router.post('/login', farmerController.login);
-router.get('/registerFarmer', farmerController.getAllFarmers);
-router.put('/registerFarmer/:id', farmerController.updateFarmer);
-router.delete('/registerFarmer/:id', farmerController.deleteFarmer);
-router.get('/registerFarmer/:id', farmerController.getFarmerById);
+router.get('/getAllFarmers', farmerController.getAllFarmers);
+router.put('/updateFarmer/:id', farmerController.updateFarmer);
+router.delete('/deleteFarmer/:id', farmerController.deleteFarmer);
+router.get('/getFarmerById/:id', farmerController.getFarmerById);
 router.get('/checkMobileNumber/:query', farmerController.checkMobileNumber);
+router.get('/registerFarmer-purchasebill/:id', farmerController.getFarmerPurchaseBill);
 
 module.exports = router;

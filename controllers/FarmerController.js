@@ -234,3 +234,38 @@ exports.checkMobileNumber = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+exports.getFarmerPurchaseBill = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const farmer = await FarmerRegister.findById(id);
+
+    if (!farmer) {
+      return res.status(404).json({ message: "Farmer not found" });
+    }
+
+    res.status(200).json({
+      _id: farmer._id,
+      name: farmer.name,
+      fatherName: farmer.fatherName,
+      mobile: farmer.mobile,
+      email: farmer.email,
+      state: farmer.state,
+      district: farmer.district,
+      policeStation: farmer.policeStation,
+      village: farmer.village,
+      pinCode: farmer.pinCode,
+      adherNumber: farmer.adherNumber,
+      panNumber: farmer.panNumber,
+      gstNumber: farmer.gstNumber,
+      accountNumber: farmer.accountNumber,
+      ifscNumber: farmer.ifscNumber,
+      branchName: farmer.branchName,
+      accountHolderName: farmer.accountHolderName,
+      bankName: farmer.bankName,
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};

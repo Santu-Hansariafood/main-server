@@ -11,6 +11,7 @@ const billsRouter = require("./routes/api/bills");
 const companiesRouter = require("./routes/api/companies");
 const consigneeRouter = require("./routes/api/consignees");
 const bidsRouter = require("./routes/api/bids");
+const bidsSupplierRouter = require("./routes/api/bidsSupplier")
 const dealsRouter = require("./routes/api/deals");
 const brokenRiceQualityParametersRouter = require("./routes/api/brokenRiceQualityParameters");
 const maizeQualityParametersRoutes = require("./routes/api/maizeQualityParameters");
@@ -43,6 +44,7 @@ app.use("/api/bills", billsRouter);
 app.use("/api/companies", companiesRouter);
 app.use("/api/consignees", consigneeRouter);
 app.use("/api/bids", bidsRouter);
+app.use('/api/bidsSupplier', bidsSupplierRouter);
 app.use("/api/deals", dealsRouter);
 app.use("/api/brokenRiceQualityParameters", brokenRiceQualityParametersRouter);
 app.use("/api/maizeQualityParameters", maizeQualityParametersRoutes);
