@@ -17,7 +17,7 @@ const brokenRiceQualityParametersRouter = require("./routes/api/brokenRiceQualit
 const maizeQualityParametersRoutes = require("./routes/api/maizeQualityParameters");
 const soyaQualityParametersRoutes = require("./routes/api/soyaQualityParameters");
 const participateOnBidRoutes = require("./routes/api/participateOnBid");
-const farmerProductsRouter = require("./routes/api/farmerProducts");
+// const farmerProductsRouter = require("./routes/api/farmerProducts");
 const pickupLocationsRoutes = require("./routes/api/participateOnBid");
 const ordersRoutes = require("./routes/api/orders");
 const farmerOrdersRoutes = require("./routes/api/farmerOrders");
@@ -50,7 +50,7 @@ app.use("/api/brokenRiceQualityParameters", brokenRiceQualityParametersRouter);
 app.use("/api/maizeQualityParameters", maizeQualityParametersRoutes);
 app.use("/api/soyaQualityParameters", soyaQualityParametersRoutes);
 app.use("/api/participateOnBid", participateOnBidRoutes);
-app.use('/api/farmerProducts', farmerProductsRouter);
+// app.use('/api/farmerProducts', farmerProductsRouter);
 app.use("/api/pickupLocations", pickupLocationsRoutes);
 app.use("/api/orders", ordersRoutes);
 app.use("/api/farmerOrders", farmerOrdersRoutes);
