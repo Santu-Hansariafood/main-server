@@ -1,7 +1,6 @@
 // controllers/FarmerProductController.js
 const FarmerProduct = require('../models/farmerProductModel');
 
-// Middleware to get a farmer product by ID
 async function getFarmerProduct(req, res, next) {
   try {
     const farmerProduct = await FarmerProduct.findById(req.params.id);
@@ -15,7 +14,6 @@ async function getFarmerProduct(req, res, next) {
   }
 }
 
-// GET all farmer products
 async function getAllFarmerProducts(req, res) {
   try {
     const farmerProducts = await FarmerProduct.find();
@@ -25,20 +23,16 @@ async function getAllFarmerProducts(req, res) {
   }
 }
 
-// GET a specific farmer product by ID
 async function getFarmerProductById(req, res) {
   res.json(res.farmerProduct);
 }
 
-// POST a new farmer product
 async function createFarmerProduct(req, res) {
   try {
-    // Check if farmerId is provided
     if (!req.body.farmerId) {
       return res.status(400).json({ message: "farmerId is required." });
     }
 
-    // Try to save the new farmer product
     const farmerProduct = new FarmerProduct({
       farmerName: req.body.farmerName,
       farmerId: req.body.farmerId,
@@ -49,10 +43,8 @@ async function createFarmerProduct(req, res) {
     const newFarmerProduct = await farmerProduct.save();
     return res.status(201).json(newFarmerProduct);
   } catch (err) {
-    // Check if the error is a duplicate key error
     if (err.code === 11000 && err.keyPattern && err.keyPattern.farmerId) {
       try {
-        // If it's a duplicate key error for farmerId, update the existing document
         const existingProduct = await FarmerProduct.findOne({
           farmerId: req.body.farmerId,
         });
@@ -64,7 +56,6 @@ async function createFarmerProduct(req, res) {
           const updatedProduct = await existingProduct.save();
           return res.status(200).json(updatedProduct);
         } else {
-          // Handle case where the document doesn't exist for some reason
           return res.status(400).json({
             message:
               "Unable to find existing document for the provided farmerId.",
@@ -74,13 +65,11 @@ async function createFarmerProduct(req, res) {
         return res.status(400).json({ message: updateErr.message });
       }
     } else {
-      // Handle other errors
       return res.status(400).json({ message: err.message });
     }
   }
 }
 
-// PUT update a farmer product
 async function updateFarmerProduct(req, res) {
   if (req.body.farmerName != null) {
     res.farmerProduct.farmerName = req.body.farmerName;
@@ -98,7 +87,6 @@ async function updateFarmerProduct(req, res) {
   }
 }
 
-// DELETE a farmer product
 async function deleteFarmerProduct(req, res) {
   try {
     await res.farmerProduct.remove();

@@ -1,4 +1,3 @@
-// routes/api/farmerProducts.js
 const express = require('express');
 const router = express.Router();
 const FarmerProductController = require('../../controllers/FarmerProductController');
