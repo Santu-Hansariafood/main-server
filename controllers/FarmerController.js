@@ -222,10 +222,12 @@ exports.getFarmerById = async (req, res) => {
 exports.checkMobileNumber = async (req, res) => {
   try {
     const { query } = req.params;
-    const farmer = await FarmerRegister.findOne({ mobile: query });
+    const farmer = await FarmerRegister.findOne({ 
+      $or: [{ mobile: query }, { name: query }] 
+    });
 
     if (farmer) {
-      return res.status(200).json({ message: 'Farmer found', farmer });
+      return res.status(200).json({ message: 'Farmer found', farmerId: farmer._id });
     } else {
       return res.status(404).json({ message: 'Farmer not found' });
     }

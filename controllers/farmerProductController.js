@@ -1,4 +1,4 @@
-const FarmerProduct = require('../models/farmerProductModel');
+const FarmerProduct = require("../models/farmerProductModel");
 
 const getFarmerProduct = async (req, res, next) => {
   try {
@@ -44,16 +44,20 @@ const createFarmerProduct = async (req, res) => {
   } catch (err) {
     if (err.code === 11000 && err.keyPattern && err.keyPattern.farmerId) {
       try {
-        const existingProduct = await FarmerProduct.findOne({ farmerId: req.body.farmerId });
+        const existingProduct = await FarmerProduct.findOne({
+          farmerId: req.body.farmerId,
+        });
         if (existingProduct) {
           existingProduct.farmerName = req.body.farmerName;
           existingProduct.selectedProducts = req.body.selectedProducts;
-          existingProduct.allProductsSelected = req.body.selectedProducts.length === 5;
+          existingProduct.allProductsSelected =
+            req.body.selectedProducts.length === 5;
           const updatedProduct = await existingProduct.save();
           return res.status(200).json(updatedProduct);
         } else {
           return res.status(400).json({
-            message: "Unable to find existing document for the provided farmerId.",
+            message:
+              "Unable to find existing document for the provided farmerId.",
           });
         }
       } catch (updateErr) {
@@ -71,7 +75,8 @@ const updateFarmerProductById = async (req, res) => {
   }
   if (req.body.selectedProducts != null) {
     res.farmerProduct.selectedProducts = req.body.selectedProducts;
-    res.farmerProduct.allProductsSelected = req.body.selectedProducts.length === 5;
+    res.farmerProduct.allProductsSelected =
+      req.body.selectedProducts.length === 5;
   }
   try {
     const updatedFarmerProduct = await res.farmerProduct.save();
