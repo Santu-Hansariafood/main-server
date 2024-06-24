@@ -1,4 +1,3 @@
-const bcrypt = require('bcrypt');
 const Employee = require('../models/employeeRegisterModel');
 
 exports.registerEmployee = async (req, res) => {
@@ -13,19 +12,18 @@ exports.registerEmployee = async (req, res) => {
   } = req.body;
 
   if (password !== confirmPassword) {
-    return res.status(400).json({ success: false, message: "Passwords do not match" });
+    return res.json({ success: false, message: "Passwords do not match" });
   }
 
   try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-
     const newEmployee = new Employee({
       firstname,
       lastname,
       mobile,
       email,
       role,
-      password: hashedPassword,
+      password,
+      confirmPassword,
     });
 
     await newEmployee.save();
@@ -43,10 +41,10 @@ exports.loginEmployee = async (req, res) => {
   try {
     const employee = await Employee.findOne({ mobile });
 
-    if (employee && await bcrypt.compare(password, employee.password)) {
+    if (employee && employee.password === password) {
       res.json({ success: true, employee });
     } else {
-      res.status(401).json({ success: false, message: "Invalid credentials" });
+      res.json({ success: false, message: "Invalid credentials" });
     }
   } catch (error) {
     console.log(error.message);
