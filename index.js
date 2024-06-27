@@ -24,6 +24,7 @@ const farmerOrdersRoutes = require("./routes/api/farmerOrders");
 const qualitiesRoutes = require("./routes/api/qualities");
 const orderByFarmerRoutes = require("./routes/api/orderByFarmer");
 const errorHandler = require("./middleware/errorMiddleware");
+const balanceRoutes = require('./routes/api/balance');
 
 require('events').EventEmitter.defaultMaxListeners = 15;
 
@@ -56,6 +57,7 @@ app.use("/api/orders", ordersRoutes);
 app.use("/api/farmerOrders", farmerOrdersRoutes);
 app.use("/api/quality-parameter", qualitiesRoutes);
 app.use("/api/orderByFarmer", orderByFarmerRoutes);
+app.use('/api/balance', balanceRoutes);
 
 app.use(errorHandler);
 
