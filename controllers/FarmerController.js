@@ -39,6 +39,16 @@ exports.registerFarmer = async (req, res) => {
       password,
     } = req.body;
 
+    // Check if farmer with the same name and Aadhaar number already exists
+    const existingFarmer = await FarmerRegister.findOne({
+      name,
+      adherNumber,
+    });
+
+    if (existingFarmer) {
+      return res.status(400).json({ message: 'Farmer already registered with the same name and Aadhaar number.' });
+    }
+
     const profilePhotoPath = req.files['profilePhoto']?.[0]?.path || null;
     const adherCardPhotoPath = req.files['adherCardPhoto']?.[0]?.path || null;
     const panCardPhotoPath = req.files['panCardPhoto']?.[0]?.path || null;
@@ -79,6 +89,8 @@ exports.registerFarmer = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// Other existing functions remain unchanged
 
 exports.forgotPassword = async (req, res) => {
   const { mobileNumber, aadhaarNumber } = req.body;
