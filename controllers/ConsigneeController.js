@@ -35,7 +35,7 @@ const createConsignee = async (req, res) => {
 
     const savedConsignees = [];
     for (const consignee of consignees) {
-      if (!consignee.companyName || !consignee.name || !consignee.mobile) {
+      if (!consignee.name || !consignee.mobile || !consignee.email || !consignee.address || !consignee.gstNo || !consignee.panNo || !consignee.state || !consignee.location) {
         return res.status(400).send('Required fields are missing.');
       }
 
@@ -52,9 +52,8 @@ const createConsignee = async (req, res) => {
 };
 
 const updateConsigneeById = async (req, res) => {
-  const { companyName, name, mobile, email, address, gstNo, panNo, state, location } = req.body;
+  const { name, mobile, email, address, gstNo, panNo, state, location } = req.body;
 
-  if (companyName != null) res.consignee.companyName = companyName;
   if (name != null) res.consignee.name = name;
   if (mobile != null) res.consignee.mobile = mobile;
   if (email != null) res.consignee.email = email;
