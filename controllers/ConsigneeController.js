@@ -1,7 +1,6 @@
-// controllers/ConsigneeController.js
-
 const Consignee = require('../models/consigneeModel');
 
+// Get all consignees
 const getAllConsignees = async (req, res) => {
   try {
     const consignees = await Consignee.find();
@@ -11,6 +10,7 @@ const getAllConsignees = async (req, res) => {
   }
 };
 
+// Get consignee by ID
 const getConsigneeById = async (req, res, next) => {
   let consignee;
   try {
@@ -25,6 +25,7 @@ const getConsigneeById = async (req, res, next) => {
   next();
 };
 
+// Create consignees
 const createConsignee = async (req, res) => {
   try {
     const consignees = req.body;
@@ -39,6 +40,22 @@ const createConsignee = async (req, res) => {
         return res.status(400).send('Required fields are missing.');
       }
 
+      // Check for duplicates
+      const existingConsignee = await Consignee.findOne({
+        name: consignee.name,
+        mobile: consignee.mobile,
+        email: consignee.email,
+        address: consignee.address,
+        gstNo: consignee.gstNo,
+        panNo: consignee.panNo,
+        state: consignee.state,
+        location: consignee.location,
+      });
+
+      if (existingConsignee) {
+        return res.status(400).send('Consignee already exists.');
+      }
+
       const newConsignee = new Consignee(consignee);
       const savedConsignee = await newConsignee.save();
       savedConsignees.push(savedConsignee);
@@ -51,6 +68,7 @@ const createConsignee = async (req, res) => {
   }
 };
 
+// Update consignee by ID
 const updateConsigneeById = async (req, res) => {
   const { name, mobile, email, address, gstNo, panNo, state, location } = req.body;
 
@@ -71,9 +89,10 @@ const updateConsigneeById = async (req, res) => {
   }
 };
 
+// Delete consignee by ID
 const deleteConsigneeById = async (req, res) => {
   try {
-    await res.consignee.remove();
+    await res.consignee.deleteOne();
     res.json({ message: 'Deleted consignee' });
   } catch (err) {
     res.status(500).json({ message: err.message });
