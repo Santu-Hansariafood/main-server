@@ -15,11 +15,11 @@ const buyerSchema = new mongoose.Schema(
     mappedFinancer: { type: String, required: false },
     state: { type: String, required: false },
     panNo: { type: String, required: false },
-    products: { type: String, required: false },
+    products: { type: [String], required: false },
     bidingLocations: { type: String, required: false },
     cityOrigins: { type: String, required: false },
     otherCompanies: { type: String, required: false },
-    consignees: { type: String, required: false },
+    consignees: { type: [String], required: false },
   },
   { timestamps: true }
 );
