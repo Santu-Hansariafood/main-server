@@ -17,6 +17,6 @@ router.get('/getAllFarmers', farmerController.getAllFarmers);
 router.put('/update/:id', farmerController.updateFarmer);
 router.delete('/delete/:id', farmerController.deleteFarmer);
 router.get('/:id', farmerController.getFarmerById);
-router.get('/checkMobile/:query', farmerController.checkMobileNumber);
+router.get('/checkMobileNumber/:query', farmerController.checkMobileNumber);
 
 module.exports = router;
