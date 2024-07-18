@@ -2,71 +2,53 @@ const FarmerRegister = require('../models/farmerRegisterModel');
 const fs = require('fs');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const path = require('path');
 
-// Ensure the uploads directory exists
-const ensureUploadsDirectoryExists = () => {
-  const uploadsPath = path.join(__dirname, '../uploads');
-  if (!fs.existsSync(uploadsPath)) {
-    fs.mkdirSync(uploadsPath, { recursive: true });
-  }
+const readAndConvertToBase64 = (filePath) => {
+  return new Promise((resolve, reject) => {
+    fs.readFile(filePath, (err, data) => {
+      if (err) {
+        reject(err);
+      } else {
+        const base64String = Buffer.from(data).toString('base64');
+        resolve(base64String);
+      }
+    });
+  });
 };
 
 exports.registerFarmer = async (req, res) => {
   try {
-    ensureUploadsDirectoryExists();
-
     const {
-      name, fatherName, mobile, email, state, district,
-      policeStation, village, pinCode, adherNumber, panNumber,
-      gstNumber, accountNumber, ifscNumber, branchName, accountHolderName,
-      bankName, password
+      name,
+      fatherName,
+      mobile,
+      email,
+      state,
+      district,
+      policeStation,
+      village,
+      pinCode,
+      adherNumber,
+      panNumber,
+      gstNumber,
+      accountNumber,
+      ifscNumber,
+      branchName,
+      accountHolderName,
+      bankName,
+      password,
     } = req.body;
 
-    const existingFarmer = await FarmerRegister.findOne({ name, adherNumber });
-    if (existingFarmer) {
-      return res.status(400).json({ message: 'Farmer already registered with the same name and Aadhaar number.' });
-    }
+    const profilePhotoPath = req.files['profilePhoto']?.[0]?.path || null;
+    const adherCardPhotoPath = req.files['adherCardPhoto']?.[0]?.path || null;
+    const panCardPhotoPath = req.files['panCardPhoto']?.[0]?.path || null;
+    const bankCardPhotoPath = req.files['bankCardPhoto']?.[0]?.path || null;
+    const gstCardPhotoPath = req.files['gstCardPhoto']?.[0]?.path || null;
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const files = req.files;
-    console.log("Files received:", files);
-
-    const saveFilesLocally = async () => {
-      const savedFiles = {};
-      if (files['profilePhoto'] && files['profilePhoto'][0]) {
-        const filePath = path.join(__dirname, '../uploads', files['profilePhoto'][0].originalname);
-        fs.copyFileSync(files['profilePhoto'][0].path, filePath);
-        savedFiles.profilePhoto = filePath;
-      }
-      if (files['adherCardPhoto'] && files['adherCardPhoto'][0]) {
-        const filePath = path.join(__dirname, '../uploads', files['adherCardPhoto'][0].originalname);
-        fs.copyFileSync(files['adherCardPhoto'][0].path, filePath);
-        savedFiles.adherCardPhoto = filePath;
-      }
-      if (files['panCardPhoto'] && files['panCardPhoto'][0]) {
-        const filePath = path.join(__dirname, '../uploads', files['panCardPhoto'][0].originalname);
-        fs.copyFileSync(files['panCardPhoto'][0].path, filePath);
-        savedFiles.panCardPhoto = filePath;
-      }
-      if (files['bankCardPhoto'] && files['bankCardPhoto'][0]) {
-        const filePath = path.join(__dirname, '../uploads', files['bankCardPhoto'][0].originalname);
-        fs.copyFileSync(files['bankCardPhoto'][0].path, filePath);
-        savedFiles.bankCardPhoto = filePath;
-      }
-      if (files['gstCardPhoto'] && files['gstCardPhoto'][0]) {
-        const filePath = path.join(__dirname, '../uploads', files['gstCardPhoto'][0].originalname);
-        fs.copyFileSync(files['gstCardPhoto'][0].path, filePath);
-        savedFiles.gstCardPhoto = filePath;
-      }
-      return savedFiles;
-    };
-
-    const savedFiles = await saveFilesLocally();
-
-    const newFarmer = new FarmerRegister({
+    const newFarmer = await FarmerRegister.create({
       name,
       fatherName,
       mobile,
@@ -85,18 +67,18 @@ exports.registerFarmer = async (req, res) => {
       accountHolderName,
       bankName,
       password: hashedPassword,
-      ...savedFiles,
+      profilePhoto: profilePhotoPath,
+      adherCardPhoto: adherCardPhotoPath,
+      panCardPhoto: panCardPhotoPath,
+      bankCardPhoto: bankCardPhotoPath,
+      gstCardPhoto: gstCardPhotoPath,
     });
 
-    await newFarmer.save();
-    res.status(201).json({ message: 'Farmer registered successfully', farmer: newFarmer });
+    res.status(201).json({ msg: 'New farmer registered successfully.', data: newFarmer });
   } catch (error) {
-    console.error("Error during farmer registration:", error);
-    res.status(500).json({ message: 'Internal server error', error: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
-
-// Other existing functions remain unchanged
 
 exports.forgotPassword = async (req, res) => {
   const { mobileNumber, aadhaarNumber } = req.body;
@@ -240,12 +222,10 @@ exports.getFarmerById = async (req, res) => {
 exports.checkMobileNumber = async (req, res) => {
   try {
     const { query } = req.params;
-    const farmer = await FarmerRegister.findOne({ 
-      $or: [{ mobile: query }, { name: query }] 
-    });
+    const farmer = await FarmerRegister.findOne({ mobile: query });
 
     if (farmer) {
-      return res.status(200).json({ message: 'Farmer found', farmerId: farmer._id });
+      return res.status(200).json({ message: 'Farmer found', farmer });
     } else {
       return res.status(404).json({ message: 'Farmer not found' });
     }
@@ -255,15 +235,37 @@ exports.checkMobileNumber = async (req, res) => {
   }
 };
 
-const readAndConvertToBase64 = (imagePath) => {
-  return new Promise((resolve, reject) => {
-    fs.readFile(imagePath, { encoding: 'base64' }, (err, data) => {
-      if (err) {
-        console.error('Error reading file:', err);
-        reject(err);
-      } else {
-        resolve(data);
-      }
+exports.getFarmerPurchaseBill = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const farmer = await FarmerRegister.findById(id);
+
+    if (!farmer) {
+      return res.status(404).json({ message: "Farmer not found" });
+    }
+
+    res.status(200).json({
+      _id: farmer._id,
+      name: farmer.name,
+      fatherName: farmer.fatherName,
+      mobile: farmer.mobile,
+      email: farmer.email,
+      state: farmer.state,
+      district: farmer.district,
+      policeStation: farmer.policeStation,
+      village: farmer.village,
+      pinCode: farmer.pinCode,
+      adherNumber: farmer.adherNumber,
+      panNumber: farmer.panNumber,
+      gstNumber: farmer.gstNumber,
+      accountNumber: farmer.accountNumber,
+      ifscNumber: farmer.ifscNumber,
+      branchName: farmer.branchName,
+      accountHolderName: farmer.accountHolderName,
+      bankName: farmer.bankName,
     });
-  });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };
