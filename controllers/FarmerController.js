@@ -4,8 +4,18 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const path = require('path');
 
+// Ensure the uploads directory exists
+const ensureUploadsDirectoryExists = () => {
+  const uploadsPath = path.join(__dirname, '../uploads');
+  if (!fs.existsSync(uploadsPath)) {
+    fs.mkdirSync(uploadsPath, { recursive: true });
+  }
+};
+
 exports.registerFarmer = async (req, res) => {
   try {
+    ensureUploadsDirectoryExists();
+
     const {
       name, fatherName, mobile, email, state, district,
       policeStation, village, pinCode, adherNumber, panNumber,
