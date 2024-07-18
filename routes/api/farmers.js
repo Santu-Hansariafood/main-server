@@ -14,9 +14,9 @@ router.post('/registerFarmer', upload.fields([
 router.post('/forgotPassword', farmerController.forgotPassword);
 router.post('/login', farmerController.login);
 router.get('/getAllFarmers', farmerController.getAllFarmers);
-router.put('/update/:id', farmerController.updateFarmer);
-router.delete('/delete/:id', farmerController.deleteFarmer);
-router.get('/:id', farmerController.getFarmerById);
+router.put('/updateFarmer/:id', farmerController.updateFarmer);
+router.delete('/deleteFarmer/:id', farmerController.deleteFarmer);
+router.get('/getFarmerById/:id', farmerController.getFarmerById);
 router.get('/checkMobileNumber/:query', farmerController.checkMobileNumber);
 
 module.exports = router;
