@@ -2,40 +2,7 @@ const FarmerRegister = require('../models/farmerRegisterModel');
 const fs = require('fs');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { google } = require('googleapis');
 const path = require('path');
-
-const SCOPES = ['https://www.googleapis.com/auth/drive.file'];
-const auth = new google.auth.GoogleAuth({
-  keyFile: path.join(__dirname, '../credentials.json'),
-  scopes: SCOPES,
-});
-
-const drive = google.drive({ version: 'v3', auth });
-
-const uploadFileToDrive = (filePath, fileName) => {
-  return new Promise((resolve, reject) => {
-    const fileMetadata = { name: fileName };
-    const media = { mimeType: 'image/jpeg', body: fs.createReadStream(filePath) };
-
-    drive.files.create(
-      {
-        resource: fileMetadata,
-        media: media,
-        fields: 'id',
-      },
-      (err, file) => {
-        if (err) {
-          console.error('Error uploading to Google Drive:', err.message);
-          reject(err);
-        } else {
-          console.log('File uploaded successfully:', file.data.id);
-          resolve(file.data.id);
-        }
-      }
-    );
-  });
-};
 
 exports.registerFarmer = async (req, res) => {
   try {
@@ -57,35 +24,37 @@ exports.registerFarmer = async (req, res) => {
     const files = req.files;
     console.log("Files received:", files);
 
-    const uploadFiles = async () => {
-      const fileUploadPromises = [];
+    const saveFilesLocally = async () => {
+      const savedFiles = {};
       if (files['profilePhoto'] && files['profilePhoto'][0]) {
-        fileUploadPromises.push(uploadFileToDrive(files['profilePhoto'][0].path, files['profilePhoto'][0].originalname));
+        const filePath = path.join(__dirname, '../uploads', files['profilePhoto'][0].originalname);
+        fs.copyFileSync(files['profilePhoto'][0].path, filePath);
+        savedFiles.profilePhoto = filePath;
       }
       if (files['adherCardPhoto'] && files['adherCardPhoto'][0]) {
-        fileUploadPromises.push(uploadFileToDrive(files['adherCardPhoto'][0].path, files['adherCardPhoto'][0].originalname));
+        const filePath = path.join(__dirname, '../uploads', files['adherCardPhoto'][0].originalname);
+        fs.copyFileSync(files['adherCardPhoto'][0].path, filePath);
+        savedFiles.adherCardPhoto = filePath;
       }
       if (files['panCardPhoto'] && files['panCardPhoto'][0]) {
-        fileUploadPromises.push(uploadFileToDrive(files['panCardPhoto'][0].path, files['panCardPhoto'][0].originalname));
+        const filePath = path.join(__dirname, '../uploads', files['panCardPhoto'][0].originalname);
+        fs.copyFileSync(files['panCardPhoto'][0].path, filePath);
+        savedFiles.panCardPhoto = filePath;
       }
       if (files['bankCardPhoto'] && files['bankCardPhoto'][0]) {
-        fileUploadPromises.push(uploadFileToDrive(files['bankCardPhoto'][0].path, files['bankCardPhoto'][0].originalname));
+        const filePath = path.join(__dirname, '../uploads', files['bankCardPhoto'][0].originalname);
+        fs.copyFileSync(files['bankCardPhoto'][0].path, filePath);
+        savedFiles.bankCardPhoto = filePath;
       }
       if (files['gstCardPhoto'] && files['gstCardPhoto'][0]) {
-        fileUploadPromises.push(uploadFileToDrive(files['gstCardPhoto'][0].path, files['gstCardPhoto'][0].originalname));
+        const filePath = path.join(__dirname, '../uploads', files['gstCardPhoto'][0].originalname);
+        fs.copyFileSync(files['gstCardPhoto'][0].path, filePath);
+        savedFiles.gstCardPhoto = filePath;
       }
-
-      const results = await Promise.all(fileUploadPromises.map(p => p.catch(e => console.error('Upload error:', e.message))));
-      return {
-        profilePhoto: results[0] || null,
-        adherCardPhoto: results[1] || null,
-        panCardPhoto: results[2] || null,
-        bankCardPhoto: results[3] || null,
-        gstCardPhoto: results[4] || null,
-      };
+      return savedFiles;
     };
 
-    const uploadedFiles = await uploadFiles();
+    const savedFiles = await saveFilesLocally();
 
     const newFarmer = new FarmerRegister({
       name,
@@ -106,7 +75,7 @@ exports.registerFarmer = async (req, res) => {
       accountHolderName,
       bankName,
       password: hashedPassword,
-      ...uploadedFiles,
+      ...savedFiles,
     });
 
     await newFarmer.save();
