@@ -13,7 +13,7 @@ router.post('/registerFarmer', upload.fields([
 
 router.post('/forgotPassword', farmerController.forgotPassword);
 router.post('/login', farmerController.login);
-router.get('/all', farmerController.getAllFarmers);
+router.get('/getAllFarmers', farmerController.getAllFarmers);
 router.put('/update/:id', farmerController.updateFarmer);
 router.delete('/delete/:id', farmerController.deleteFarmer);
 router.get('/:id', farmerController.getFarmerById);
