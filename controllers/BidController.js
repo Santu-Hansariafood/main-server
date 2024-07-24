@@ -1,6 +1,5 @@
-
-
 const Bid = require('../models/bidModel');
+const Buyer = require('../models/buyerModel'); // Assuming you have a Buyer model
 const client = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
 const getAllBids = async (req, res) => {
@@ -29,6 +28,9 @@ const createBid = async (req, res) => {
     const bid = new Bid(req.body);
     await bid.save();
 
+    const buyers = await Buyer.find();
+    const buyerPhoneNumbers = buyers.map(buyer => buyer.phoneNumber);
+
     const messageBody = `
       You have a new bid.
       Bid ID: ${bid._id}.
@@ -42,21 +44,22 @@ const createBid = async (req, res) => {
       - Team Hansaria
     `;
 
-    client.messages
-      .create({
-        body: messageBody,
-        from: process.env.TWILIO_PHONE_NUMBER,
-        to: `+91${bid.buyerPhoneNumber}`,
-      })
-      .then((message) => console.log("Message SID:", message.sid))
-      .catch((error) => {
-        if (error.code === 21608) {
-          console.error("Error: Unverified number. Please verify the number or upgrade your Twilio account.");
-        } else {
-          console.error("Error sending message:", error);
-        }
-        res.status(500).send({ error: 'Error sending SMS' });
-      });
+    buyerPhoneNumbers.forEach(phoneNumber => {
+      client.messages
+        .create({
+          body: messageBody,
+          from: process.env.TWILIO_PHONE_NUMBER,
+          to: `+91${phoneNumber}`,
+        })
+        .then((message) => console.log("Message SID:", message.sid))
+        .catch((error) => {
+          if (error.code === 21608) {
+            console.error("Error: Unverified number. Please verify the number or upgrade your Twilio account.");
+          } else {
+            console.error("Error sending message:", error);
+          }
+        });
+    });
 
     res.status(201).send(bid);
   } catch (error) {
