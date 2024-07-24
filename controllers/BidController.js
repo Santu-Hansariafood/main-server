@@ -47,12 +47,12 @@ const createBid = async (req, res) => {
       - Team Hansaria
     `;
 
-    buyerPhoneNumbers.forEach((phoneNumber) => {
+    buyerPhoneNumbers.forEach((mobile) => {
       client.messages
         .create({
           body: messageBody,
           from: process.env.TWILIO_PHONE_NUMBER,
-          to: `+91${phoneNumber}`,
+          to: `+91${mobile}`,
         })
         .then((message) => console.log("Message SID:", message.sid))
         .catch((error) => {
