@@ -1,6 +1,9 @@
-const Bid = require('../models/bidModel');
-const Buyer = require('../models/buyerModel'); // Assuming you have a Buyer model
-const client = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+const Bid = require("../models/bidModel");
+const Buyer = require("../models/buyerModel");
+const client = require("twilio")(
+  process.env.TWILIO_ACCOUNT_SID,
+  process.env.TWILIO_AUTH_TOKEN
+);
 
 const getAllBids = async (req, res) => {
   try {
@@ -15,7 +18,7 @@ const getBidById = async (req, res) => {
   try {
     const bid = await Bid.findById(req.params.id);
     if (!bid) {
-      return res.status(404).send({ message: 'Bid not found' });
+      return res.status(404).send({ message: "Bid not found" });
     }
     res.status(200).send(bid);
   } catch (error) {
@@ -28,8 +31,8 @@ const createBid = async (req, res) => {
     const bid = new Bid(req.body);
     await bid.save();
 
-    const buyers = await Buyer.find();
-    const buyerPhoneNumbers = buyers.map(buyer => buyer.phoneNumber);
+    const buyers = await Buyer.find(); // Fetch all buyers
+    const buyerPhoneNumbers = buyers.map((buyer) => buyer.phoneNumber);
 
     const messageBody = `
       You have a new bid.
@@ -44,7 +47,7 @@ const createBid = async (req, res) => {
       - Team Hansaria
     `;
 
-    buyerPhoneNumbers.forEach(phoneNumber => {
+    buyerPhoneNumbers.forEach((phoneNumber) => {
       client.messages
         .create({
           body: messageBody,
@@ -54,7 +57,9 @@ const createBid = async (req, res) => {
         .then((message) => console.log("Message SID:", message.sid))
         .catch((error) => {
           if (error.code === 21608) {
-            console.error("Error: Unverified number. Please verify the number or upgrade your Twilio account.");
+            console.error(
+              "Error: Unverified number. Please verify the number or upgrade your Twilio account."
+            );
           } else {
             console.error("Error sending message:", error);
           }
@@ -69,9 +74,12 @@ const createBid = async (req, res) => {
 
 const updateBidById = async (req, res) => {
   try {
-    const bid = await Bid.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    const bid = await Bid.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
     if (!bid) {
-      return res.status(404).send({ message: 'Bid not found' });
+      return res.status(404).send({ message: "Bid not found" });
     }
     res.status(200).send(bid);
   } catch (error) {
@@ -83,9 +91,9 @@ const deleteBidById = async (req, res) => {
   try {
     const bid = await Bid.findByIdAndDelete(req.params.id);
     if (!bid) {
-      return res.status(404).send({ message: 'Bid not found' });
+      return res.status(404).send({ message: "Bid not found" });
     }
-    res.status(200).send({ message: 'Bid deleted' });
+    res.status(200).send({ message: "Bid deleted" });
   } catch (error) {
     res.status(500).send(error);
   }
