@@ -31,8 +31,10 @@ const createBid = async (req, res) => {
     const bid = new Bid(req.body);
     await bid.save();
 
-    const buyers = await Buyer.find(); // Fetch all buyers
-    const buyerPhoneNumbers = buyers.map((buyer) => buyer.phoneNumber);
+    const buyers = await Buyer.find();
+    const buyerPhoneNumbers = buyers
+      .map((buyer) => buyer.mobile)
+      .filter(Boolean);
 
     const messageBody = `
       You have a new bid.
@@ -47,23 +49,27 @@ const createBid = async (req, res) => {
       - Team Hansaria
     `;
 
-    buyerPhoneNumbers.forEach((mobile) => {
-      client.messages
-        .create({
-          body: messageBody,
-          from: process.env.TWILIO_PHONE_NUMBER,
-          to: `+91${mobile}`,
-        })
-        .then((message) => console.log("Message SID:", message.sid))
-        .catch((error) => {
-          if (error.code === 21608) {
-            console.error(
-              "Error: Unverified number. Please verify the number or upgrade your Twilio account."
-            );
-          } else {
-            console.error("Error sending message:", error);
-          }
-        });
+    buyerPhoneNumbers.forEach((phoneNumber) => {
+      if (phoneNumber && phoneNumber.length === 10) {
+        client.messages
+          .create({
+            body: messageBody,
+            from: process.env.TWILIO_PHONE_NUMBER,
+            to: `+91${phoneNumber}`,
+          })
+          .then((message) => console.log("Message SID:", message.sid))
+          .catch((error) => {
+            if (error.code === 21608) {
+              console.error(
+                "Error: Unverified number. Please verify the number or upgrade your Twilio account."
+              );
+            } else {
+              console.error("Error sending message:", error);
+            }
+          });
+      } else {
+        console.error(`Invalid phone number: ${phoneNumber}`);
+      }
     });
 
     res.status(201).send(bid);
