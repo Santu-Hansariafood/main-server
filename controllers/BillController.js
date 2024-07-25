@@ -1,5 +1,6 @@
+const mongoose = require('mongoose');
 const Bill = require('../models/BillModel');
-const Counter = require('../models/Counter'); // Ensure you have this model
+const Counter = require('../models/Counter'); 
 
 const getAllBills = async (req, res) => {
   try {
