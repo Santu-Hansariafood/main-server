@@ -1,4 +1,5 @@
 const Bill = require('../models/BillModel');
+const Counter = require('../models/CounterModel'); // Ensure you have this model
 
 const getAllBills = async (req, res) => {
   try {
