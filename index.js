@@ -1,27 +1,8 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const path = require('path');
+const path = require("path");
 const connectDB = require("./config/db");
-
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-// Set up CORS options
-const corsOptions = {
-  origin: 'https://hans-emp.vercel.app', // Replace with your actual origin
-  optionsSuccessStatus: 200
-};
-
-// Middleware
-app.use(cors(corsOptions));
-app.use(express.json());
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-// Connect to database
-connectDB();
-
-// Import routes
 const farmerRoutes = require("./routes/api/farmers");
 const employeeRoutes = require("./routes/api/employees");
 const buyersRoutes = require("./routes/api/buyers");
@@ -44,14 +25,22 @@ const farmerOrdersRoutes = require("./routes/api/farmerOrders");
 const qualitiesRoutes = require("./routes/api/qualities");
 const orderByFarmerRoutes = require("./routes/api/orderByFarmer");
 const errorHandler = require("./middleware/errorMiddleware");
-const balanceRoutes = require('./routes/api/balance');
+const balanceRoutes = require("./routes/api/balance");
 const productRoutes = require("./routes/api/products");
-const errorMiddleware = require('./middleware/errorMiddlewarefunction');
-const selfCompanyRoutes = require('./routes/api/selfCompany');
+const errorMiddleware = require("./middleware/errorMiddlewarefunction");
+const selfCompanyRoutes = require("./routes/api/selfCompany");
 
-require('events').EventEmitter.defaultMaxListeners = 15;
+require("events").EventEmitter.defaultMaxListeners = 15;
 
-// Use routes
+const app = express();
+app.use(cors());
+const PORT = process.env.PORT || 3000;
+
+connectDB();
+
+app.use(express.json());
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 app.use("/api/farmers", farmerRoutes);
 app.use("/api/employees", employeeRoutes);
 app.use("/api/buyers", buyersRoutes);
@@ -61,7 +50,7 @@ app.use("/api/bills", billsRouter);
 app.use("/api/companies", companiesRouter);
 app.use("/api/consignees", consigneeRouter);
 app.use("/api/bids", bidsRouter);
-app.use('/api/bidsSupplier', bidsSupplierRouter);
+app.use("/api/bidsSupplier", bidsSupplierRouter);
 app.use("/api/deals", dealsRouter);
 app.use("/api/brokenRiceQualityParameters", brokenRiceQualityParametersRouter);
 app.use("/api/maizeQualityParameters", maizeQualityParametersRoutes);
@@ -73,11 +62,10 @@ app.use("/api/orders", ordersRoutes);
 app.use("/api/farmerOrders", farmerOrdersRoutes);
 app.use("/api/quality-parameter", qualitiesRoutes);
 app.use("/api/orderByFarmer", orderByFarmerRoutes);
-app.use('/api/balance', balanceRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/self-company', selfCompanyRoutes);
+app.use("/api/balance", balanceRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/self-company", selfCompanyRoutes);
 
-// Error handling middleware
 app.use(errorHandler);
 app.use(errorMiddleware);
 
