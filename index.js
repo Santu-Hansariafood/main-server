@@ -3,6 +3,25 @@ const express = require("express");
 const cors = require("cors");
 const path = require('path');
 const connectDB = require("./config/db");
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Set up CORS options
+const corsOptions = {
+  origin: 'https://hans-emp.vercel.app', // Replace with your actual origin
+  optionsSuccessStatus: 200
+};
+
+// Middleware
+app.use(cors(corsOptions));
+app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Connect to database
+connectDB();
+
+// Import routes
 const farmerRoutes = require("./routes/api/farmers");
 const employeeRoutes = require("./routes/api/employees");
 const buyersRoutes = require("./routes/api/buyers");
@@ -12,7 +31,7 @@ const billsRouter = require("./routes/api/bills");
 const companiesRouter = require("./routes/api/companies");
 const consigneeRouter = require("./routes/api/consignees");
 const bidsRouter = require("./routes/api/bids");
-const bidsSupplierRouter = require("./routes/api/bidsSupplier")
+const bidsSupplierRouter = require("./routes/api/bidsSupplier");
 const dealsRouter = require("./routes/api/deals");
 const brokenRiceQualityParametersRouter = require("./routes/api/brokenRiceQualityParameters");
 const maizeQualityParametersRoutes = require("./routes/api/maizeQualityParameters");
@@ -26,21 +45,13 @@ const qualitiesRoutes = require("./routes/api/qualities");
 const orderByFarmerRoutes = require("./routes/api/orderByFarmer");
 const errorHandler = require("./middleware/errorMiddleware");
 const balanceRoutes = require('./routes/api/balance');
-const productRoutes = require("./routes/api/products")
+const productRoutes = require("./routes/api/products");
 const errorMiddleware = require('./middleware/errorMiddlewarefunction');
 const selfCompanyRoutes = require('./routes/api/selfCompany');
 
 require('events').EventEmitter.defaultMaxListeners = 15;
 
-const app = express();
-app.use(cors());
-const PORT = process.env.PORT || 3000;
-
-connectDB();
-
-app.use(express.json());
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
+// Use routes
 app.use("/api/farmers", farmerRoutes);
 app.use("/api/employees", employeeRoutes);
 app.use("/api/buyers", buyersRoutes);
@@ -66,6 +77,7 @@ app.use('/api/balance', balanceRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/self-company', selfCompanyRoutes);
 
+// Error handling middleware
 app.use(errorHandler);
 app.use(errorMiddleware);
 
