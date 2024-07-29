@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Bill = require('../models/BillModel');
 const Counter = require('../models/Counter'); 
+const Godown = require('../models/godownModel');
 
 const getAllBills = async (req, res) => {
   try {
@@ -21,10 +22,10 @@ const getBillById = async (req, res) => {
 };
 
 const createBill = async (req, res) => {
-  const { farmerId, ...billData } = req.body;
+  const { farmerId, selectedGodown, ...billData } = req.body;
 
-  if (!mongoose.Types.ObjectId.isValid(farmerId)) {
-    return res.status(400).json({ error: "Invalid farmerId format" });
+  if (!mongoose.Types.ObjectId.isValid(farmerId) || !mongoose.Types.ObjectId.isValid(selectedGodown)) {
+    return res.status(400).json({ error: "Invalid farmerId or selectedGodown format" });
   }
 
   try {
@@ -36,9 +37,16 @@ const createBill = async (req, res) => {
 
     const formattedBillNumber = `HANS/${counter.seq.toString().padStart(5, "0")}`;
 
+    // Fetch godown name using the selectedGodown ID
+    const godown = await Godown.findById(selectedGodown);
+    if (!godown) {
+      return res.status(400).json({ error: "Invalid Godown ID" });
+    }
+
     const newBill = new Bill({
       billNumber: formattedBillNumber,
       farmerId: new mongoose.Types.ObjectId(farmerId),
+      selectedGodownName: godown.name, // Save the godown name instead of ID
       ...billData,
     });
 

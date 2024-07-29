@@ -41,7 +41,7 @@ const billSchema = new mongoose.Schema({
   farmerAccountDetails: farmerAccountDetailsSchema,
   totalUnloadingCost: { type: Number, required: true },
   company: { type: String, required: true },
-  selectedGodown: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Godown' },
+  selectedGodownName: { type: String, required: true }, // Update here
 });
 
 module.exports = mongoose.model('Bill', billSchema);
