@@ -29,6 +29,7 @@ const balanceRoutes = require("./routes/api/balance");
 const productRoutes = require("./routes/api/products");
 const errorMiddleware = require("./middleware/errorMiddlewarefunction");
 const selfCompanyRoutes = require("./routes/api/selfCompany");
+const taskRoutes = require('./routes/api/taskRoutes');
 
 require("events").EventEmitter.defaultMaxListeners = 15;
 
@@ -65,6 +66,8 @@ app.use("/api/orderByFarmer", orderByFarmerRoutes);
 app.use("/api/balance", balanceRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/self-company", selfCompanyRoutes);
+app.use('/api', taskRoutes);
+
 
 app.use(errorHandler);
 app.use(errorMiddleware);
