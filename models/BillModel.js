@@ -6,6 +6,7 @@ const farmerAccountDetailsSchema = new mongoose.Schema({
   branchName: String,
   accountNumber: String,
   ifscNumber: String,
+  panNumber: String,
 });
 
 const qualityParamsSchema = new mongoose.Schema({
@@ -41,7 +42,7 @@ const billSchema = new mongoose.Schema({
   farmerAccountDetails: farmerAccountDetailsSchema,
   totalUnloadingCost: { type: Number, required: true },
   company: { type: String, required: true },
-  selectedGodownName: { type: String, required: true }, // Update here
+  selectedGodownName: { type: String, required: true },
 });
 
 module.exports = mongoose.model('Bill', billSchema);
