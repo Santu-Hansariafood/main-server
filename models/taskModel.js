@@ -27,6 +27,10 @@ const taskSchema = new mongoose.Schema(
     feedback: {
       type: String,
     },
+    appointedBy: {
+      type: String,
+      required: true,
+    },
   },
   { timestamps: true }
 );
