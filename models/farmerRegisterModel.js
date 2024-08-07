@@ -17,7 +17,6 @@ const farmerRegisterSchema = mongoose.Schema(
     },
     email: {
       type: String,
-      required: true,
     },
     state: {
       type: String,
