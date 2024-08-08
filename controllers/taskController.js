@@ -52,12 +52,16 @@ exports.updateTask = async (req, res) => {
 exports.updateTaskStatus = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status, feedback } = req.body;
-    const updatedTask = await Task.findByIdAndUpdate(
-      id,
-      { status, feedback },
-      { new: true }
-    );
+    const { status, feedback, appointedBy } = req.body;
+    const updateFields = { status, feedback };
+
+    if (appointedBy) {
+      updateFields.appointedBy = appointedBy;
+    }
+
+    const updatedTask = await Task.findByIdAndUpdate(id, updateFields, {
+      new: true,
+    });
     if (!updatedTask)
       return res.status(404).json({ message: "Task not found" });
     res.status(200).json(updatedTask);

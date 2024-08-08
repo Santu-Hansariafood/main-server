@@ -37,7 +37,6 @@ const createBill = async (req, res) => {
 
     const formattedBillNumber = `HANS/${counter.seq.toString().padStart(5, "0")}`;
 
-    // Fetch godown name using the selectedGodown ID
     const godown = await Godown.findById(selectedGodown);
     if (!godown) {
       return res.status(400).json({ error: "Invalid Godown ID" });
@@ -46,7 +45,7 @@ const createBill = async (req, res) => {
     const newBill = new Bill({
       billNumber: formattedBillNumber,
       farmerId: new mongoose.Types.ObjectId(farmerId),
-      selectedGodownName: godown.name, // Save the godown name instead of ID
+      selectedGodownName: godown.name,
       ...billData,
     });
 
