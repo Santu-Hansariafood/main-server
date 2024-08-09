@@ -22,7 +22,7 @@ const taskSchema = new mongoose.Schema(
     status: {
       type: String,
       default: "Assigned",
-      enum: ["Pending", "Accepted", "Complete", "Rejected"],
+      enum: ["Assigned","Pending", "Accepted", "Complete", "Rejected"],
     },
     feedback: {
       type: String,
