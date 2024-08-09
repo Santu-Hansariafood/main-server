@@ -52,11 +52,15 @@ exports.updateTask = async (req, res) => {
 exports.updateTaskStatus = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status, feedback, appointedBy } = req.body;
+    const { status, feedback, appointedBy, assignTo } = req.body;
     const updateFields = { status, feedback };
 
     if (appointedBy) {
       updateFields.appointedBy = appointedBy;
+    }
+
+    if (assignTo) {
+      updateFields.assignTo = assignTo;
     }
 
     const updatedTask = await Task.findByIdAndUpdate(id, updateFields, {
