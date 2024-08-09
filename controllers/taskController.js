@@ -85,7 +85,7 @@ exports.reassignTask = async (req, res) => {
 
     const updatedTask = await Task.findByIdAndUpdate(
       id,
-      { assignTo },
+      { assignTo, status: "Assigned" },
       {
         new: true,
         runValidators: true,
