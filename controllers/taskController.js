@@ -74,6 +74,34 @@ exports.updateTaskStatus = async (req, res) => {
   }
 };
 
+exports.reassignTask = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { assignTo } = req.body;
+
+    if (!assignTo) {
+      return res.status(400).json({ message: "New assignee is required" });
+    }
+
+    const updatedTask = await Task.findByIdAndUpdate(
+      id,
+      { assignTo },
+      {
+        new: true,
+        runValidators: true,
+      }
+    ).populate("assignTo", "firstname lastname");
+
+    if (!updatedTask) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    res.status(200).json(updatedTask);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
 exports.deleteTask = async (req, res) => {
   try {
     const { id } = req.params;
