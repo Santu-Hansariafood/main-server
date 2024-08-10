@@ -1,7 +1,9 @@
-
-
-const Bid = require('../models/bidModel');
-const client = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+const Bid = require("../models/bidModel");
+const Buyer = require("../models/buyerModel");
+const client = require("twilio")(
+  process.env.TWILIO_ACCOUNT_SID,
+  process.env.TWILIO_AUTH_TOKEN
+);
 
 const getAllBids = async (req, res) => {
   try {
@@ -16,7 +18,7 @@ const getBidById = async (req, res) => {
   try {
     const bid = await Bid.findById(req.params.id);
     if (!bid) {
-      return res.status(404).send({ message: 'Bid not found' });
+      return res.status(404).send({ message: "Bid not found" });
     }
     res.status(200).send(bid);
   } catch (error) {
@@ -28,6 +30,11 @@ const createBid = async (req, res) => {
   try {
     const bid = new Bid(req.body);
     await bid.save();
+
+    const buyers = await Buyer.find();
+    const buyerPhoneNumbers = buyers
+      .map((buyer) => buyer.mobile)
+      .filter(Boolean);
 
     const messageBody = `
       You have a new bid.
@@ -42,21 +49,28 @@ const createBid = async (req, res) => {
       - Team Hansaria
     `;
 
-    client.messages
-      .create({
-        body: messageBody,
-        from: process.env.TWILIO_PHONE_NUMBER,
-        to: `+91${bid.buyerPhoneNumber}`,
-      })
-      .then((message) => console.log("Message SID:", message.sid))
-      .catch((error) => {
-        if (error.code === 21608) {
-          console.error("Error: Unverified number. Please verify the number or upgrade your Twilio account.");
-        } else {
-          console.error("Error sending message:", error);
-        }
-        res.status(500).send({ error: 'Error sending SMS' });
-      });
+    buyerPhoneNumbers.forEach((phoneNumber) => {
+      if (phoneNumber && phoneNumber.length === 10) {
+        client.messages
+          .create({
+            body: messageBody,
+            from: process.env.TWILIO_PHONE_NUMBER,
+            to: `+91${phoneNumber}`,
+          })
+          .then((message) => console.log("Message SID:", message.sid))
+          .catch((error) => {
+            if (error.code === 21608) {
+              console.error(
+                "Error: Unverified number. Please verify the number or upgrade your Twilio account."
+              );
+            } else {
+              console.error("Error sending message:", error);
+            }
+          });
+      } else {
+        console.error(`Invalid phone number: ${phoneNumber}`);
+      }
+    });
 
     res.status(201).send(bid);
   } catch (error) {
@@ -66,9 +80,12 @@ const createBid = async (req, res) => {
 
 const updateBidById = async (req, res) => {
   try {
-    const bid = await Bid.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    const bid = await Bid.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
     if (!bid) {
-      return res.status(404).send({ message: 'Bid not found' });
+      return res.status(404).send({ message: "Bid not found" });
     }
     res.status(200).send(bid);
   } catch (error) {
@@ -80,9 +97,9 @@ const deleteBidById = async (req, res) => {
   try {
     const bid = await Bid.findByIdAndDelete(req.params.id);
     if (!bid) {
-      return res.status(404).send({ message: 'Bid not found' });
+      return res.status(404).send({ message: "Bid not found" });
     }
-    res.status(200).send({ message: 'Bid deleted' });
+    res.status(200).send({ message: "Bid deleted" });
   } catch (error) {
     res.status(500).send(error);
   }
