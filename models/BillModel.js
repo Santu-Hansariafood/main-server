@@ -43,6 +43,16 @@ const billSchema = new mongoose.Schema({
   totalUnloadingCost: { type: Number, required: true },
   company: { type: String, required: true },
   selectedGodownName: { type: String, required: true },
+  date: {
+    type: String,
+    default: () => {
+      const date = new Date();
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    },
+  },
 });
 
 module.exports = mongoose.model('Bill', billSchema);

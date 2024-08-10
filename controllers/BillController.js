@@ -22,7 +22,7 @@ const getBillById = async (req, res) => {
 };
 
 const createBill = async (req, res) => {
-  const { farmerId, selectedGodown, ...billData } = req.body;
+  const { farmerId, selectedGodown, date, ...billData } = req.body;
 
   if (!mongoose.Types.ObjectId.isValid(farmerId) || !mongoose.Types.ObjectId.isValid(selectedGodown)) {
     return res.status(400).json({ error: "Invalid farmerId or selectedGodown format" });
@@ -46,6 +46,7 @@ const createBill = async (req, res) => {
       billNumber: formattedBillNumber,
       farmerId: new mongoose.Types.ObjectId(farmerId),
       selectedGodownName: godown.name,
+      date: date || undefined,
       ...billData,
     });
 
