@@ -22,12 +22,16 @@ const taskSchema = new mongoose.Schema(
     status: {
       type: String,
       default: "Assigned",
-      enum: ["Assigned","Pending", "Accepted", "Complete", "Rejected"],
+      enum: ["Assigned", "Pending", "Accepted", "Complete", "Rejected"],
     },
     feedback: {
       type: String,
     },
     appointedBy: {
+      type: String,
+      required: true,
+    },
+    creationDateTime: {
       type: String,
       required: true,
     },
