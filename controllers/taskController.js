@@ -18,21 +18,12 @@ exports.createTask = async (req, res) => {
 
 exports.getTasks = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-
     const tasks = await Task.find()
       .populate("assignTo", "firstname lastname")
-      .limit(limit)
-      .skip((page - 1) * limit)
       .exec();
-
-    const count = await Task.countDocuments();
 
     res.status(200).json({
       tasks,
-      totalPages: Math.ceil(count / limit),
-      currentPage: page,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
