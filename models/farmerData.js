@@ -8,7 +8,7 @@ const farmerDataSchema = new mongoose.Schema(
     },
     fatherName: {
       type: String,
-      required: true,
+      required: false,
     },
     village: {
       type: String,
