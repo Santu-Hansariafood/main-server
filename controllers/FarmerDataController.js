@@ -5,11 +5,13 @@ exports.createFarmerData = async (req, res) => {
   try {
     const farmer = new Farmer(req.body);
     await farmer.save();
-    res
-      .status(201)
-      .json({ message: "Farmer data created successfully", farmer });
+    res.status(201).json({ message: "Farmer data created successfully", farmer });
   } catch (error) {
-    res.status(500).json({ message: "Failed to create farmer data", error });
+    if (error.code === 11000 && error.keyPattern && error.keyPattern.mobile) {
+      res.status(400).json({ message: "Mobile number already exists" });
+    } else {
+      res.status(500).json({ message: "Failed to create farmer data", error });
+    }
   }
 };
 
