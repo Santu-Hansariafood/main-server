@@ -9,8 +9,17 @@ const RiceMillSchema = new mongoose.Schema(
     state: { type: String, required: true },
     pin: { type: String, required: true },
     district: { type: String, required: true },
-    phoneNumber: { type: String, required: true },
-    email: { type: String },
+    phoneNumbers: { 
+      type: [String], 
+      required: true,
+      validate: {
+        validator: function(v) {
+          return v.every(num => /^[0-9]{10}$/.test(num));
+        },
+        message: props => `${props.value} is not a valid phone number!`
+      }
+    },
+    email: { type: String, match: /.+\@.+\..+/ },
   },
   { timestamps: true }
 );
