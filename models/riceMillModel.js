@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const RiceMillSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
-    role: { type: String, enum: ["owner", "manager"], required: true },
+    role: { type: String, enum: ["owner", "manager", "agent"], required: true },
     riceMillName: { type: String, required: true },
     address: { type: String, required: true },
     state: { type: String, required: true },
