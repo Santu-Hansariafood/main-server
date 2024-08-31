@@ -1,4 +1,3 @@
-const { type } = require("express/lib/response");
 const mongoose = require("mongoose");
 
 const farmerDataSchema = new mongoose.Schema(
@@ -36,10 +35,9 @@ const farmerDataSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-    registerBy:{
-      type: String,
-      required: true,
-    }
+    registerBy: {
+      fullName: { type: String, required: true },
+    },
   },
   {
     timestamps: true,
