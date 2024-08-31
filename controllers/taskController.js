@@ -2,13 +2,14 @@ const Task = require("../models/taskModel");
 
 exports.createTask = async (req, res) => {
   try {
-    const { taskName, taskDescription, assignTo, priority, appointedBy } = req.body;
+    const { taskName, taskDescription, assignTo, priority, appointedBy, creationDateTime } = req.body;
     const newTask = await Task.create({
       taskName,
       taskDescription,
       assignTo,
       priority,
       appointedBy,
+      creationDateTime,
     });
     res.status(201).json(newTask);
   } catch (error) {
@@ -18,17 +19,12 @@ exports.createTask = async (req, res) => {
 
 exports.getTasks = async (req, res) => {
   try {
-    const { page = 1, limit = 10 } = req.query;
     const tasks = await Task.find()
       .populate("assignTo", "firstname lastname")
-      .limit(limit * 1)
-      .skip((page - 1) * limit)
       .exec();
-    const count = await Task.countDocuments();
+
     res.status(200).json({
       tasks,
-      totalPages: Math.ceil(count / limit),
-      currentPage: page,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

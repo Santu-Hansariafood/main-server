@@ -29,7 +29,9 @@ const balanceRoutes = require("./routes/api/balance");
 const productRoutes = require("./routes/api/products");
 const errorMiddleware = require("./middleware/errorMiddlewarefunction");
 const selfCompanyRoutes = require("./routes/api/selfCompany");
-const taskRoutes = require('./routes/api/taskRoutes');
+const taskRoutes = require("./routes/api/taskRoutes");
+const farmerDataRoutes = require("./routes/api/farmerData");
+const riceMillRoutes = require("./routes/api/riceMillRoutes")
 
 require("events").EventEmitter.defaultMaxListeners = 15;
 
@@ -66,8 +68,9 @@ app.use("/api/orderByFarmer", orderByFarmerRoutes);
 app.use("/api/balance", balanceRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/self-company", selfCompanyRoutes);
-app.use('/api', taskRoutes);
-
+app.use("/api", taskRoutes);
+app.use("/api/farmer-data", farmerDataRoutes);
+app.use('/api/rice-mills', riceMillRoutes);
 
 app.use(errorHandler);
 app.use(errorMiddleware);
