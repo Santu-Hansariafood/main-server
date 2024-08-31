@@ -37,9 +37,9 @@ exports.registerFarmer = async (req, res) => {
       accountHolderName,
       bankName,
       password,
+      verifiedBy,
     } = req.body;
 
-    // Check if farmer with the same name and Aadhaar number already exists
     const existingFarmer = await FarmerRegister.findOne({
       name,
       adherNumber,
@@ -76,6 +76,7 @@ exports.registerFarmer = async (req, res) => {
       branchName,
       accountHolderName,
       bankName,
+      verifiedBy,
       password: hashedPassword,
       profilePhoto: profilePhotoPath,
       adherCardPhoto: adherCardPhotoPath,

@@ -94,6 +94,7 @@ const farmerRegisterSchema = mongoose.Schema(
       type: String,
       required: false,
     },
+    verifiedBy: { type: String, required: true },
   },
   {
     timestamps: true,
