@@ -3,6 +3,8 @@ const express = require("express");
 const cors = require("cors");
 const path = require("path");
 const connectDB = require("./config/db");
+const compression = require("compression");
+
 const farmerRoutes = require("./routes/api/farmers");
 const employeeRoutes = require("./routes/api/employees");
 const buyersRoutes = require("./routes/api/buyers");
@@ -38,6 +40,8 @@ require("events").EventEmitter.defaultMaxListeners = 15;
 
 const app = express();
 app.use(cors());
+app.use(compression());
+
 const PORT = process.env.PORT || 3000;
 
 connectDB();
