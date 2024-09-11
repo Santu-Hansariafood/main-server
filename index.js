@@ -7,6 +7,8 @@ const compression = require("compression");
 const rateLimit = require("express-rate-limit");
 
 const cacheMiddleware = require("./middleware/cacheMiddleware");
+const errorMiddleware = require("./middleware/errorMiddlewarefunction");
+const errorHandler = require("./middleware/errorMiddleware");
 
 require("events").EventEmitter.defaultMaxListeners = 15;
 
@@ -185,18 +187,7 @@ app.use("/api/travel-details", cacheMiddleware, async (req, res, next) => {
   travelRoutes(req, res, next);
 });
 
-app.use(async (err, req, res, next) => {
-  const { default: errorHandler } = await import(
-    "./middleware/errorMiddleware"
-  );
-  errorHandler(err, req, res, next);
-});
-
-app.use(async (req, res, next) => {
-  const { default: errorMiddleware } = await import(
-    "./middleware/errorMiddlewarefunction"
-  );
-  errorMiddleware(req, res, next);
-});
+app.use(errorHandler);
+app.use(errorMiddleware);
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
