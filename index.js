@@ -4,197 +4,76 @@ const cors = require("cors");
 const path = require("path");
 const connectDB = require("./config/db");
 const compression = require("compression");
-const rateLimit = require("express-rate-limit");
 
-const cacheMiddleware = require("./middleware/cacheMiddleware");
-const errorMiddleware = require("./middleware/errorMiddlewarefunction");
+const farmerRoutes = require("./routes/api/farmers");
+const employeeRoutes = require("./routes/api/employees");
+const buyersRoutes = require("./routes/api/buyers");
+const buyerCompaniesRouter = require("./routes/api/buyers");
+const godownsRouter = require("./routes/api/godowns");
+const billsRouter = require("./routes/api/bills");
+const companiesRouter = require("./routes/api/companies");
+const consigneeRouter = require("./routes/api/consignees");
+const bidsRouter = require("./routes/api/bids");
+const bidsSupplierRouter = require("./routes/api/bidsSupplier");
+const dealsRouter = require("./routes/api/deals");
+const brokenRiceQualityParametersRouter = require("./routes/api/brokenRiceQualityParameters");
+const maizeQualityParametersRoutes = require("./routes/api/maizeQualityParameters");
+const soyaQualityParametersRoutes = require("./routes/api/soyaQualityParameters");
+const participateOnBidRoutes = require("./routes/api/participateOnBid");
+// const farmerProductsRouter = require("./routes/api/farmerProducts");
+const pickupLocationsRoutes = require("./routes/api/participateOnBid");
+const ordersRoutes = require("./routes/api/orders");
+const farmerOrdersRoutes = require("./routes/api/farmerOrders");
+const qualitiesRoutes = require("./routes/api/qualities");
+const orderByFarmerRoutes = require("./routes/api/orderByFarmer");
 const errorHandler = require("./middleware/errorMiddleware");
-
+const balanceRoutes = require("./routes/api/balance");
+const productRoutes = require("./routes/api/products");
+const errorMiddleware = require("./middleware/errorMiddlewarefunction");
+const selfCompanyRoutes = require("./routes/api/selfCompany");
+const taskRoutes = require("./routes/api/taskRoutes");
+const farmerDataRoutes = require("./routes/api/farmerData");
+const riceMillRoutes = require("./routes/api/riceMillRoutes");
+const travelRoutes = require("./routes/api/travelRoutes");
 require("events").EventEmitter.defaultMaxListeners = 15;
 
 const app = express();
-const corsOptions = {
-  origin: "https://hans-emp.vercel.app",
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  credentials: true,
-  optionsSuccessStatus: 200,
-};
-
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(compression());
-
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-});
-app.use(limiter);
 
 const PORT = process.env.PORT || 3000;
 
 connectDB();
-
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
-app.use("/api/farmers", cacheMiddleware, async (req, res, next) => {
-  const farmerRoutes = (await import("./routes/api/farmers")).default;
-  farmerRoutes(req, res, next);
-});
-
-app.use("/api/employees", cacheMiddleware, async (req, res, next) => {
-  const employeeRoutes = (await import("./routes/api/employees")).default;
-  employeeRoutes(req, res, next);
-});
-
-app.use("/api/buyers", cacheMiddleware, async (req, res, next) => {
-  const buyersRoutes = (await import("./routes/api/buyers")).default;
-  buyersRoutes(req, res, next);
-});
-
-app.use("/api/buyerCompanies", cacheMiddleware, async (req, res, next) => {
-  const buyerCompaniesRouter = (await import("./routes/api/buyers")).default;
-  buyerCompaniesRouter(req, res, next);
-});
-
-app.use("/api/godowns", cacheMiddleware, async (req, res, next) => {
-  const godownsRouter = (await import("./routes/api/godowns")).default;
-  godownsRouter(req, res, next);
-});
-
-app.use("/api/bills", cacheMiddleware, async (req, res, next) => {
-  const billsRouter = (await import("./routes/api/bills")).default;
-  billsRouter(req, res, next);
-});
-
-app.use("/api/companies", cacheMiddleware, async (req, res, next) => {
-  const companiesRouter = (await import("./routes/api/companies")).default;
-  companiesRouter(req, res, next);
-});
-
-app.use("/api/consignees", cacheMiddleware, async (req, res, next) => {
-  const consigneeRouter = (await import("./routes/api/consignees")).default;
-  consigneeRouter(req, res, next);
-});
-
-app.use("/api/bids", cacheMiddleware, async (req, res, next) => {
-  const bidsRouter = (await import("./routes/api/bids")).default;
-  bidsRouter(req, res, next);
-});
-
-app.use("/api/bidsSupplier", cacheMiddleware, async (req, res, next) => {
-  const bidsSupplierRouter = (await import("./routes/api/bidsSupplier"))
-    .default;
-  bidsSupplierRouter(req, res, next);
-});
-
-app.use("/api/deals", cacheMiddleware, async (req, res, next) => {
-  const dealsRouter = (await import("./routes/api/deals")).default;
-  dealsRouter(req, res, next);
-});
-
-app.use(
-  "/api/brokenRiceQualityParameters",
-  cacheMiddleware,
-  async (req, res, next) => {
-    const brokenRiceQualityParametersRouter = (
-      await import("./routes/api/brokenRiceQualityParameters")
-    ).default;
-    brokenRiceQualityParametersRouter(req, res, next);
-  }
-);
-
-app.use(
-  "/api/maizeQualityParameters",
-  cacheMiddleware,
-  async (req, res, next) => {
-    const maizeQualityParametersRoutes = (
-      await import("./routes/api/maizeQualityParameters")
-    ).default;
-    maizeQualityParametersRoutes(req, res, next);
-  }
-);
-
-app.use(
-  "/api/soyaQualityParameters",
-  cacheMiddleware,
-  async (req, res, next) => {
-    const soyaQualityParametersRoutes = (
-      await import("./routes/api/soyaQualityParameters")
-    ).default;
-    soyaQualityParametersRoutes(req, res, next);
-  }
-);
-
-app.use("/api/participateOnBid", cacheMiddleware, async (req, res, next) => {
-  const participateOnBidRoutes = (await import("./routes/api/participateOnBid"))
-    .default;
-  participateOnBidRoutes(req, res, next);
-});
-
-app.use("/api/pickupLocations", cacheMiddleware, async (req, res, next) => {
-  const pickupLocationsRoutes = (await import("./routes/api/pickupLocations"))
-    .default;
-  pickupLocationsRoutes(req, res, next);
-});
-
-app.use("/api/orders", cacheMiddleware, async (req, res, next) => {
-  const ordersRoutes = (await import("./routes/api/orders")).default;
-  ordersRoutes(req, res, next);
-});
-
-app.use("/api/farmerOrders", cacheMiddleware, async (req, res, next) => {
-  const farmerOrdersRoutes = (await import("./routes/api/farmerOrders"))
-    .default;
-  farmerOrdersRoutes(req, res, next);
-});
-
-app.use("/api/quality-parameter", cacheMiddleware, async (req, res, next) => {
-  const qualitiesRoutes = (await import("./routes/api/qualities")).default;
-  qualitiesRoutes(req, res, next);
-});
-
-app.use("/api/orderByFarmer", cacheMiddleware, async (req, res, next) => {
-  const orderByFarmerRoutes = (await import("./routes/api/orderByFarmer"))
-    .default;
-  orderByFarmerRoutes(req, res, next);
-});
-
-app.use("/api/balance", cacheMiddleware, async (req, res, next) => {
-  const balanceRoutes = (await import("./routes/api/balance")).default;
-  balanceRoutes(req, res, next);
-});
-
-app.use("/api/products", cacheMiddleware, async (req, res, next) => {
-  const productRoutes = (await import("./routes/api/products")).default;
-  productRoutes(req, res, next);
-});
-
-app.use("/api/self-company", cacheMiddleware, async (req, res, next) => {
-  const selfCompanyRoutes = (await import("./routes/api/selfCompany")).default;
-  selfCompanyRoutes(req, res, next);
-});
-
-app.use("/api", cacheMiddleware, async (req, res, next) => {
-  const taskRoutes = (await import("./routes/api/taskRoutes")).default;
-  taskRoutes(req, res, next);
-});
-
-app.use("/api/farmer-data", cacheMiddleware, async (req, res, next) => {
-  const farmerDataRoutes = (await import("./routes/api/farmerData")).default;
-  farmerDataRoutes(req, res, next);
-});
-
-app.use("/api/rice-mills", cacheMiddleware, async (req, res, next) => {
-  const riceMillRoutes = (await import("./routes/api/riceMillRoutes")).default;
-  riceMillRoutes(req, res, next);
-});
-
-app.use("/api/travel-details", cacheMiddleware, async (req, res, next) => {
-  const travelRoutes = (await import("./routes/api/travelRoutes")).default;
-  travelRoutes(req, res, next);
-});
-
+app.use("/api/farmers", farmerRoutes);
+app.use("/api/employees", employeeRoutes);
+app.use("/api/buyers", buyersRoutes);
+app.use("/api/buyerCompanies", buyerCompaniesRouter);
+app.use("/api/godowns", godownsRouter);
+app.use("/api/bills", billsRouter);
+app.use("/api/companies", companiesRouter);
+app.use("/api/consignees", consigneeRouter);
+app.use("/api/bids", bidsRouter);
+app.use("/api/bidsSupplier", bidsSupplierRouter);
+app.use("/api/deals", dealsRouter);
+app.use("/api/brokenRiceQualityParameters", brokenRiceQualityParametersRouter);
+app.use("/api/maizeQualityParameters", maizeQualityParametersRoutes);
+app.use("/api/soyaQualityParameters", soyaQualityParametersRoutes);
+app.use("/api/participateOnBid", participateOnBidRoutes);
+// app.use('/api/farmerProducts', farmerProductsRouter);
+app.use("/api/pickupLocations", pickupLocationsRoutes);
+app.use("/api/orders", ordersRoutes);
+app.use("/api/farmerOrders", farmerOrdersRoutes);
+app.use("/api/quality-parameter", qualitiesRoutes);
+app.use("/api/orderByFarmer", orderByFarmerRoutes);
+app.use("/api/balance", balanceRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/self-company", selfCompanyRoutes);
+app.use("/api", taskRoutes);
+app.use("/api/farmer-data", farmerDataRoutes);
+app.use("/api/rice-mills", riceMillRoutes);
+app.use("/api/travel-details", travelRoutes);
 app.use(errorHandler);
 app.use(errorMiddleware);
-
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
