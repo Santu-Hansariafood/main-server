@@ -1,6 +1,5 @@
 const TravelDetail = require("../models/TravelDetail");
 
-// Add new travel detail
 const addTravelDetail = async (req, res) => {
   const { employeeName, startReading, endReading, date } = req.body;
 
@@ -19,7 +18,6 @@ const addTravelDetail = async (req, res) => {
   }
 };
 
-// Get all travel details
 const getAllTravelDetails = async (req, res) => {
   try {
     const travelDetails = await TravelDetail.find();
@@ -29,7 +27,6 @@ const getAllTravelDetails = async (req, res) => {
   }
 };
 
-// Get travel detail by ID
 const getTravelDetailById = async (req, res) => {
   const { id } = req.params;
 
@@ -44,7 +41,6 @@ const getTravelDetailById = async (req, res) => {
   }
 };
 
-// Update travel detail by ID
 const updateTravelDetail = async (req, res) => {
   const { id } = req.params;
   const { employeeName, startReading, endReading, date } = req.body;
@@ -66,7 +62,6 @@ const updateTravelDetail = async (req, res) => {
   }
 };
 
-// Delete travel detail by ID
 const deleteTravelDetail = async (req, res) => {
   const { id } = req.params;
 
@@ -83,7 +78,6 @@ const deleteTravelDetail = async (req, res) => {
   }
 };
 
-// Check if travel detail entry exists for today
 const checkTodayEntry = async (req, res) => {
   const { employeeName } = req.query;
 
@@ -93,7 +87,7 @@ const checkTodayEntry = async (req, res) => {
 
     const entryExists = await TravelDetail.findOne({
       employeeName,
-      timestamp: { $gte: oneDayAgo }, // find entries within the last 24 hours
+      timestamp: { $gte: oneDayAgo },
     });
 
     if (entryExists) {
