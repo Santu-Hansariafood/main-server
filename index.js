@@ -13,11 +13,14 @@ const errorHandler = require("./middleware/errorMiddleware");
 require("events").EventEmitter.defaultMaxListeners = 15;
 
 const app = express();
-app.use(cors({
-    origin: "https://hans-emp.vercel.app/",
-    methods: ["GET", "POST", "PUT", "DELETE"]
-  }));
-  
+const corsOptions = {
+  origin: "https://hans-emp.vercel.app",
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true,
+  optionsSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
 app.use(compression());
 
 const limiter = rateLimit({
