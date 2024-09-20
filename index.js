@@ -35,6 +35,7 @@ const taskRoutes = require("./routes/api/taskRoutes");
 const farmerDataRoutes = require("./routes/api/farmerData");
 const riceMillRoutes = require("./routes/api/riceMillRoutes");
 const travelRoutes = require("./routes/api/travelRoutes");
+const locationTrackRoutes = require("./routes/api/locationTrackRoutes")
 require("events").EventEmitter.defaultMaxListeners = 15;
 
 const app = express();
@@ -74,6 +75,7 @@ app.use("/api", taskRoutes);
 app.use("/api/farmer-data", farmerDataRoutes);
 app.use("/api/rice-mills", riceMillRoutes);
 app.use("/api/travel-details", travelRoutes);
+app.use("/api/location-track", locationTrackRoutes);
 app.use(errorHandler);
 app.use(errorMiddleware);
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
