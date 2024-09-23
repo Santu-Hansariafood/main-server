@@ -17,6 +17,10 @@ const LocationTrackSchema = new mongoose.Schema(
         required: true,
       },
     },
+    locationName: {
+      type: String,
+      required: true,
+    },
     timestamp: {
       type: Date,
       default: Date.now,
