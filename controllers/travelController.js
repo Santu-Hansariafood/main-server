@@ -82,12 +82,12 @@ const checkTodayEntry = async (req, res) => {
   const { employeeName } = req.query;
 
   try {
-    const oneDayAgo = new Date();
-    oneDayAgo.setHours(oneDayAgo.getHours() - 24);
+    const eighteenHoursAgo = new Date();
+    eighteenHoursAgo.setHours(eighteenHoursAgo.getHours() - 18);
 
     const entryExists = await TravelDetail.findOne({
       employeeName,
-      timestamp: { $gte: oneDayAgo },
+      timestamp: { $gte: eighteenHoursAgo },
     });
 
     if (entryExists) {
